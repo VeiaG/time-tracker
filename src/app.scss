@@ -1,15 +1,19 @@
+
 .app{
+  position: relative;
   &__wrapper{
     display: flex;
     gap:32px;
     padding-top:16px;
     padding-bottom: 32px;
+    position: relative;
+    
   }
-  max-height:100dvh;
-
+  height:calc(100dvh - var(--nav-height));
+  --nav-height:64px;
 }
 .nav{
-  height:64px;
+  height:var(--nav-height);
   background:rgb(230, 230, 230);
   &__wrapper{
     display: flex;
@@ -23,7 +27,7 @@
 // }
 .sidebar{
   width:256px;
- 
+  flex-shrink: 0;
   font-size:24px;
   &__list{
     display: flex;
@@ -50,10 +54,36 @@
   }
 }
 .dashboard{
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
+  width:100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height:100%;
+  gap:8px;
+  &__grid{
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap:16px;
+    
+    flex-grow: 1;
+  }
   &__graph{
-    grid-column-start: 2;
-    grid-column-end: 3;
+    grid-column: span 4;
+  }
+  &__calendar{
+    grid-column: span 4;
+  }
+}
+*{
+  &::-webkit-scrollbar {
+    width: 12px;
+    height:12px;
+    
+  }
+   
+   
+  &::-webkit-scrollbar-thumb {
+    background: rgb(176, 176, 176);
+    border-radius: 8px;
   }
 }

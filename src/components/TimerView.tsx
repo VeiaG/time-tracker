@@ -3,21 +3,59 @@ import {Timer,TimerDates, AllTimers} from '../App';
 import localforage from 'localforage';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { IconButton } from '@chakra-ui/react';
+import { Button, IconButton } from '@chakra-ui/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Tabs, TabList, TabPanels, Tab, TabPanel ,Heading,Card,CardBody,CardFooter } from '@chakra-ui/react'
 type TimerProps={
-    currentTimerDate:TimerDates,
-    currentTimer:Timer,
+    selectedID:string,
+    timers:AllTimers,
     isPaused:boolean,
-    startTimer:()=>void,
+    startTimer:(id:string)=>void,
     stopTimer:()=>void,
+    setSelectedTimerID:(id:string)=>void,
 }
 
 
 
-const TimerView = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer}:TimerProps) => {
+const TimerView = ({timers,selectedID,isPaused,startTimer,stopTimer,setSelectedTimerID} :TimerProps) => {
+    const [currentTimer,setCurrentTimer] = useState<Timer>();
+    const params = useParams();
+    const id = params?.id as string;
+    const [currentId,setCurrentId] = useState<string>(id);
+    const [currentTimerDate,setCurrentTimerDate] = useState<TimerDates>({});
     
+    const [isCurrentPaused , setIsCurrentPaused] = useState<boolean>(true);
+    
+    useEffect(() => {
+        if(currentId && timers){
+            setCurrentId(currentId);
+            setCurrentTimer(timers[currentId]);
+            localforage.getItem<TimerDates>(currentId).then((data) => {
+                if(data){
+                    setCurrentTimerDate(data);
+                }
+                else{
+                    setCurrentTimerDate({});
+                }
+            });
+        }
+    },[currentId,timers]);
+
+    useEffect(() => {
+        if(currentId !== id){
+            setCurrentId(id);
+        }
+    },[id,currentId]);
+
+    useEffect(()=>{
+        if(currentId === selectedID){
+            setIsCurrentPaused(isPaused);
+        }
+        else{
+            setIsCurrentPaused(true);
+        }
+    },[selectedID,isPaused,currentId]);
+
     const getNumbersBySeconds = (seconds:number | undefined) => {
         if(seconds){
             const days = Math.floor(seconds/86400);
@@ -56,44 +94,15 @@ const TimerView = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer}
     }
 
 
-    const data = currentTimerDate ? Object.keys(currentTimerDate).map((key) => {
-        return {
-            name:key,
-            hours:round(currentTimerDate[key]/3600,3)
-        }
-    }) : [];
-
-    // const testAddSecondToNextDayy   = () => {
-    //     const newDate = new Date();
-    //     newDate.setDate(newDate.getDate() + 1);
-    //     const dateString = newDate.toLocaleDateString();
-    //     const newTimerDate = {...currentTimerDate};
-    //     if(newTimerDate[dateString]){
-    //         newTimerDate[dateString] += 1;
-    //     }else{
-    //         newTimerDate[dateString] = 1;
-    //     }
-    //     setCurrentTimerDate(newTimerDate);
-    //     localforage.setItem(currentId,newTimerDate);
-    // }
-    // const testAddMinuteToThisDay = ()=>{
-    //     const newDate = new Date();
-    //     const dateString = newDate.toLocaleDateString();
-    //     const newTimerDate = {...currentTimerDate};
-    //     if(newTimerDate[dateString]){
-    //         newTimerDate[dateString] += 60;
-    //     }else{
-    //         newTimerDate[dateString] = 60;
-    //     }
-    //     setCurrentTimerDate(newTimerDate);
-    //     localforage.setItem(currentId,newTimerDate);
-
-    //     //add to total time
-    //     const newTimers = {...timers};
-    //     newTimers[currentId].totalTime += 60;
-    //     setTimers(newTimers);
-    // }
-
+    const data = currentTimerDate ? Object.keys(currentTimerDate)
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+        .map((key) => {
+            return {
+                name: key,
+                hours: round(currentTimerDate[key] / 3600, 3)
+            }
+        }) : [];
+        
     
 
     return (
@@ -120,7 +129,7 @@ const TimerView = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer}
                                 <CardBody>
                                     Сьогодні:
                                     <Heading size="lg">{
-                                        getStringByTimerObject(getNumbersBySeconds(currentTimerDate[new Date().toLocaleDateString()]))
+                                        getStringByTimerObject(getNumbersBySeconds(currentTimerDate[new Date().toDateString()]))
                                     }</Heading>
                                 </CardBody>
                             </Card>
@@ -140,7 +149,7 @@ const TimerView = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer}
                                 }}
                                 >
                                 
-                                <XAxis dataKey="name" tickFormatter={(value)=>new Date(value).toLocaleDateString()}/>
+                                <XAxis dataKey="name"  tickFormatter={(value)=>new Date(value).toLocaleDateString()} />
                                 
                                 {/* <Tooltip formatter={(value) => [value +' год.' ,"Час",]}/> */}
                                 <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
@@ -150,11 +159,12 @@ const TimerView = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer}
                         </Card>
                                 
                         <IconButton onClick={()=>{ 
-                            isPaused ? startTimer() : stopTimer()
+                            isCurrentPaused ? startTimer(currentId) : stopTimer()
                         }} 
-                            aria-label={isPaused ? 'Старт' : 'Продовжити'}
-                            icon={<i className={`fa fa-${isPaused ? "play" :"pause" }`}></i>} 
+                            aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}
+                            icon={<i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>} 
                         />
+                        <Button isDisabled={currentId === selectedID} onClick={()=>setSelectedTimerID(currentId)}>Select this</Button>
                         
                     </TabPanel>
                     <TabPanel>
@@ -171,7 +181,7 @@ const TimerView = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer}
                             }}
                             >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
+                            <XAxis dataKey="name" tickFormatter={(value)=>new Date(value).toLocaleDateString()}/>
                             <YAxis />
                             <Tooltip formatter={(value) => [value +' год.' ,"Час",]}/>
                             <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
