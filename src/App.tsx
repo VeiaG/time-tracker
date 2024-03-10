@@ -1,15 +1,24 @@
 import {useState,useEffect} from 'react';
-import './app.scss'
 import Sidebar from './components/Sidebar'
 import TimerView from './components/TimerView'
 import Content from './components/Content';
-import { HashRouter, Routes,Route } from 'react-router-dom';
+import { HashRouter, Routes,Route, Link } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Navigation from './components/Navigation';
 import { useLocalForage } from './hooks/useLocalForage';
 import useTimer from './hooks/useTimer';
-
+import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/components/themeProvider"
 import localforage from 'localforage';
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 export type AllTimers ={
   [id:string]:Timer,
@@ -23,6 +32,7 @@ export type TimerDates = {
 }
 
 
+
 function App() {
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
   
@@ -32,49 +42,63 @@ function App() {
 
   const [currentId,setCurrentId] = useState<string>('');
 
-    
-
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
 
   useEffect(() => {
       if(selectedTimerID && timers){
-          console.log('useEffect timer UPDATE',selectedTimerID)
           setCurrentId(selectedTimerID);
           setCurrentTimer(timers[selectedTimerID]);
           localforage.getItem<TimerDates>(selectedTimerID).then((data) => {
               if(data){
                   setCurrentTimerDate(data);
+                  console.log('setCurrentTimerDate in useEffect',data);
               }
               else{
                   setCurrentTimerDate({});
               }
           });
       }
-  },[selectedTimerID,timers]);
+  },[selectedTimerID,timers,setCurrentTimerDate]);
 
-  const timerCallback = ()=>{
+
+  const timerCallback =async (timeElapsed:number)=>{
       const newDate = new Date();
+
       const dateString = newDate.toDateString();
       const newTimerDate = {...currentTimerDate};
       if(newTimerDate[dateString]){
-          newTimerDate[dateString] += 1;
-      }else{
-          newTimerDate[dateString] = 1;
+          newTimerDate[dateString] += timeElapsed;
       }
-      setCurrentTimerDate(newTimerDate);
-      localforage.setItem(currentId,newTimerDate);
-      console.log('timerCallback')
+      else{
+          newTimerDate[dateString] = timeElapsed;
+      }
       const newTimers = {...timers};
-      newTimers[currentId].totalTime += 1;
+
+      newTimers[currentId].totalTime += timeElapsed;
+      setCurrentTimerDate(newTimerDate);
+      await localforage.setItem(currentId,newTimerDate);
+
       setTimers(newTimers);
     }
-  const [startTimer,stopTimer,isPaused] = useTimer(timerCallback);
+  const [startTimer,stopTimer,isPaused,seconds] = useTimer(timerCallback);
 
-  const startAndSelectTimer = (id:string) => {
-    if(id !== selectedTimerID){
-      setSelectedTimerID(id);
+  const toggleTimer = (id:string) => {
+    if(isPaused){
+      if(id !== selectedTimerID){
+        setSelectedTimerID(id);
+      }
+      startTimer();
     }
-    startTimer();
+    else{
+      if(id === selectedTimerID){
+        stopTimer();
+      }
+      else{
+        stopTimer();
+        setSelectedTimerID(id);
+        startTimer();
+      }
+    }
   }
       
 
@@ -87,59 +111,93 @@ function App() {
     setTimers({...timers,[id]:newTimer});
     localforage.setItem(id,{[new Date().toDateString()]:0});
   }
-  const deleteTimer = (id:string) => {
+  const deleteTimer =async (id:string) => {
+    
     const newTimers = {...timers};
     delete newTimers[id];
-    setTimers(newTimers);
-    localforage.removeItem(id);
-  }
-  const testAddMinuteToNextDay = ()=>{
-    const newDate = new Date();
-    newDate.setDate(newDate.getDate() -6);
-    const dateString = newDate.toDateString();
-    const newTimerDate = {...currentTimerDate};
-    if(newTimerDate[dateString]){
-        newTimerDate[dateString] += 60;
-    }else{
-        newTimerDate[dateString] = 60;
+    if (id === selectedTimerID){
+      if(!isPaused){
+        await stopTimer();
+      }
+      setSelectedTimerID('');
+      
     }
-    setCurrentTimerDate(newTimerDate);
-    localforage.setItem(currentId,newTimerDate);
-    console.log('timerCallback')
-    const newTimers = {...timers};
-    newTimers[currentId].totalTime += 60;
+    await localforage.removeItem(id);
     setTimers(newTimers);
   }
   return (
-      <div className="app">
-        <Navigation addTimer={addTimer}/>
-          <div className="app__wrapper">
-
-              <HashRouter>
-                <Sidebar timers={timers} selectedTimerID={selectedTimerID}/>
-                <Routes>
-                    <Route path="/:id" element={
-                      <Content>
-                        <TimerView 
-                          selectedID={selectedTimerID}
-                          timers={timers}
-                          isPaused={isPaused}
-                          stopTimer={stopTimer}
-                          startTimer={startAndSelectTimer}
-                          setSelectedTimerID={setSelectedTimerID}/>
-                      </Content>} />
-                    <Route path="/" element={<Content>
-                        <button onClick={testAddMinuteToNextDay}>test</button>
-                        <Dashboard currentTimer={currentTimer ?? {} as Timer} 
-                          currentTimerDate={currentTimerDate ?? {} as TimerDates}
-                          isPaused={isPaused}
-                          stopTimer={stopTimer}
-                          startTimer={startTimer}
-                          currentID={selectedTimerID}/>
-                      </Content>} />
-                </Routes>
-              </HashRouter>
+      <div className="min-h-dvh h-dvh max-h-dvh pt-24 relative box-border">
+       <ScrollArea className="h-full max-h-full min-h-full relative box-border">
+       <ThemeProvider>
+        <Toaster />
+        
+        <HashRouter>
+          
+          <Navigation addTimer={addTimer} 
+            toggleTimer={toggleTimer}
+            isPaused={isPaused}
+            currentTimer={currentTimer}
+            currentID={selectedTimerID}/>
+          
+          <div className="container flex flex-col gap-2 relative h-full box-border">
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link to="/">Головна</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link to="/timers">Усі таймери</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+          <div className="flex gap-4 relative grow">
+          
+          <Routes>
+              <Route path="/:id" element={
+                <>
+                <Sidebar 
+                  isPaused={isPaused}
+                  timers={timers} 
+                  toggleTimer={toggleTimer}
+                  seconds={seconds}
+                  selectedTimerID={selectedTimerID}/>
+                <Content>
+                  <TimerView 
+                    selectedID={selectedTimerID}
+                    timers={timers}
+                    
+                    isPaused={isPaused}
+                    toggleTimer={toggleTimer}
+                    setSelectedTimerID={setSelectedTimerID}/>
+                </Content> </>}/>
+              <Route path="/" element={
+                <>
+                  <Sidebar 
+                    isPaused={isPaused}
+                    timers={timers} 
+                    toggleTimer={toggleTimer}
+                    seconds={seconds}
+                    selectedTimerID={selectedTimerID}/>
+                  <Content>
+                  <Dashboard currentTimer={currentTimer ?? {} as Timer} 
+                    currentTimerDate={currentTimerDate ?? {} as TimerDates}
+                    isPaused={isPaused}
+                    seconds={seconds}
+                    selectedTimerID={selectedTimerID}/>
+                  </Content>
+                </>
+              } />
+          </Routes>
           </div>
+          </div>
+        </HashRouter>
+        </ThemeProvider>
+       </ScrollArea>
       </div>
   )
 }

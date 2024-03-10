@@ -3,21 +3,29 @@ import {Timer,TimerDates, AllTimers} from '../App';
 import localforage from 'localforage';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, IconButton } from '@chakra-ui/react';
+import { Button } from "@/components/ui/button";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Tabs, TabList, TabPanels, Tab, TabPanel ,Heading,Card,CardBody,CardFooter } from '@chakra-ui/react'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
+
+import { Link } from 'react-router-dom'
 type TimerProps={
     selectedID:string,
     timers:AllTimers,
     isPaused:boolean,
-    startTimer:(id:string)=>void,
-    stopTimer:()=>void,
+    toggleTimer:(id:string)=>void,
     setSelectedTimerID:(id:string)=>void,
 }
 
 
 
-const TimerView = ({timers,selectedID,isPaused,startTimer,stopTimer,setSelectedTimerID} :TimerProps) => {
+const TimerView = ({timers,selectedID,isPaused,toggleTimer,setSelectedTimerID} :TimerProps) => {
     const [currentTimer,setCurrentTimer] = useState<Timer>();
     const params = useParams();
     const id = params?.id as string;
@@ -59,7 +67,7 @@ const TimerView = ({timers,selectedID,isPaused,startTimer,stopTimer,setSelectedT
     const getNumbersBySeconds = (seconds:number | undefined) => {
         if(seconds){
             const days = Math.floor(seconds/86400);
-            const hours = Math.floor(seconds/3600);
+            const hours = Math.floor((seconds/3600)%24);
             const minutes = Math.floor((seconds%3600)/60);
             const sec = seconds%60;
             return {
@@ -107,92 +115,72 @@ const TimerView = ({timers,selectedID,isPaused,startTimer,stopTimer,setSelectedT
 
     return (
         <div className="timer">
-            <Tabs>
-                <TabList>
-                    <Tab>Таймер</Tab>
-                    <Tab>Графік</Tab>
-                </TabList>
-
-                <TabPanels>
-                    <TabPanel>
-                        <Heading>{currentTimer?.name}</Heading>
-                        <div className="timer__time">
-                            <Card>
-                                <CardBody>
-                                    Часу витрачено:
-                                    <Heading size="lg">{
-                                        getStringByTimerObject(getNumbersBySeconds(currentTimer?.totalTime))
-                                    }</Heading>
-                                </CardBody>
-                            </Card>
-                            <Card align="center">
-                                <CardBody>
-                                    Сьогодні:
-                                    <Heading size="lg">{
-                                        getStringByTimerObject(getNumbersBySeconds(currentTimerDate[new Date().toDateString()]))
-                                    }</Heading>
-                                </CardBody>
-                            </Card>
-                        </div>
-                        <Card>
-                            <CardBody>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <AreaChart
-                                width={400}
-                                height={300}
-                                data={data}
-                                margin={{
-                                    top: 10,
-                                    right: 30,
-                                    left: 0,
-                                    bottom: 0,
-                                }}
-                                >
-                                
-                                <XAxis dataKey="name"  tickFormatter={(value)=>new Date(value).toLocaleDateString()} />
-                                
-                                {/* <Tooltip formatter={(value) => [value +' год.' ,"Час",]}/> */}
-                                <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                            </CardBody>
-                        </Card>
-                                
-                        <IconButton onClick={()=>{ 
-                            isCurrentPaused ? startTimer(currentId) : stopTimer()
-                        }} 
-                            aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}
-                            icon={<i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>} 
-                        />
-                        <Button isDisabled={currentId === selectedID} onClick={()=>setSelectedTimerID(currentId)}>Select this</Button>
-                        
-                    </TabPanel>
-                    <TabPanel>
-                        <ResponsiveContainer width="100%" height={600}>
-                            <AreaChart
-                            width={500}
-                            height={400}
-                            data={data}
-                            margin={{
-                                top: 10,
-                                right: 30,
-                                left: 0,
-                                bottom: 0,
-                            }}
-                            >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" tickFormatter={(value)=>new Date(value).toLocaleDateString()}/>
-                            <YAxis />
-                            <Tooltip formatter={(value) => [value +' год.' ,"Час",]}/>
-                            <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </TabPanel>
-                </TabPanels>
-                </Tabs>
-            
-            
-
+            <h1>{currentTimer?.name}</h1>
+            <div className="timer__time">
+                <Card>
+                    <CardContent>
+                        Часу витрачено:
+                        <h1>{
+                            getStringByTimerObject(getNumbersBySeconds(currentTimer?.totalTime))
+                        }</h1>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent>
+                        Сьогодні:
+                        <h1>{
+                            getStringByTimerObject(getNumbersBySeconds(currentTimerDate[new Date().toDateString()]))
+                        }</h1>
+                    </CardContent>
+                </Card>
+            </div>
+            <Card>
+                <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart
+                    width={400}
+                    height={300}
+                    data={data}
+                    margin={{
+                        top: 10,
+                        right: 30,
+                        left: 0,
+                        bottom: 0,
+                    }}
+                    >
+                    
+                    <XAxis dataKey="name"  tickFormatter={(value)=>new Date(value).toLocaleDateString()} />
+                    
+                    {/* <Tooltip formatter={(value) => [value +' год.' ,"Час",]}/> */}
+                    <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
+                    </AreaChart>
+                </ResponsiveContainer>
+                </CardContent>
+            </Card>
+                    
+            <Button onClick={()=>toggleTimer(currentId)} 
+                aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}
+            ><i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i></Button>
+            <Button disabled={currentId === selectedID} onClick={()=>setSelectedTimerID(currentId)}>Select this</Button>
+            <ResponsiveContainer width="100%" height={600}>
+                <AreaChart
+                width={500}
+                height={400}
+                data={data}
+                margin={{
+                    top: 10,
+                    right: 30,
+                    left: 0,
+                    bottom: 0,
+                }}
+                >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tickFormatter={(value)=>new Date(value).toLocaleDateString()}/>
+                <YAxis />
+                <Tooltip formatter={(value) => [value +' год.' ,"Час",]}/>
+                <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
+                </AreaChart>
+            </ResponsiveContainer>
         </div>
     )
 }

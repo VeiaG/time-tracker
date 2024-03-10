@@ -1,54 +1,30 @@
 import {Timer,TimerDates} from '../App';
+import { getNumbersBySeconds } from '@/lib/timeUtils';
 
-import { IconButton } from '@chakra-ui/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Heading,Card,CardBody,Text, Stack } from '@chakra-ui/react'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
+import { TypographyH1, TypographyLead, TypographyMuted, TypographyP } from './ui/typography';
+  
 
 type DashboardProps={
     currentTimerDate:TimerDates,
     currentTimer:Timer,
     isPaused:boolean,
-    currentID:string,
-    startTimer:()=>void,
-    stopTimer:()=>void,
+    selectedTimerID:string,
+    seconds:number,
 }
 
 
 
-const Dashboard = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer, currentID}:DashboardProps) => {
+const Dashboard = ({currentTimerDate,currentTimer,isPaused, selectedTimerID,seconds}:DashboardProps) => {
     
-    const getNumbersBySeconds = (seconds:number | undefined) => {
-        if(seconds){
-            const days = Math.floor(seconds/86400);
-            const hours = Math.floor(seconds/3600);
-            const minutes = Math.floor((seconds%3600)/60);
-            const sec = seconds%60;
-            return {
-                days,
-                hours,
-                minutes,
-                sec
-            }
-        }
-        return {};
-    }
-
-    const getStringByTimerObject = (timerObject:{days?:number,hours?:number,minutes?:number,sec?:number}) => {
-       let string ='';
-         if(timerObject.days){
-              string += timerObject.days + ' дн.';
-         }
-        if(timerObject.hours){
-            string += timerObject.hours + ' год.';
-        }
-        if(timerObject.minutes){
-            string += timerObject.minutes + ' хв.';
-        }
-        if(timerObject.sec){
-            string += timerObject.sec + ' сек.';
-        }
-        return string;
-    }
 
     const round = (num:number,decimals:number) => {
         return Number(Math.round(parseFloat(num + 'e' + decimals)) + 'e-' + decimals);
@@ -64,74 +40,57 @@ const Dashboard = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer,
         .map((key) => {
             return {
                 name: key,
-                hours: round(currentTimerDate[key] / 3600, 3)
+                hours:round(currentTimerDate[key] / 3600 ,3)
             }
         }) : [];
     
-    return (
-      <div className="dashboard">
-        <Heading size="xl">{currentTimer?.name}</Heading>
-        <Text fontSize="xl">Обраний таймер</Text>
-        
-        <div className="dashboard__grid">
+    const renderDashboard = (
+        <>
+            <TypographyH1 ><div className="truncate max-w-3xl">{currentTimer?.name}</div></TypographyH1>
+        <TypographyMuted>Обраний таймер</TypographyMuted>
+        <div className="grid grid-cols-4 gap-4 h-full mt-4">
         <Card>
-            <CardBody>
-                <Text>Часу витрачено:</Text>
-                <Heading size="lg">{
-                    getStringByTimerObject(getNumbersBySeconds(currentTimer?.totalTime))
-                }</Heading>
-                
-            </CardBody>
-        </Card>
-        
+            <CardHeader>
+                <CardTitle>{
+                    getNumbersBySeconds(currentTimer?.totalTime,seconds)
+                }</CardTitle>
+                <CardDescription>Часу витрачено</CardDescription>
+            </CardHeader>
+        </Card>      
         <Card>
-            <CardBody>
-                <Text>Сьогодні:</Text>
-                <Heading size="lg">{
-                    getStringByTimerObject(getNumbersBySeconds(currentTimerDate[new Date().toDateString()]))
-                }</Heading>
-            </CardBody>
+            <CardHeader>
+                <CardTitle>{
+                    getNumbersBySeconds(currentTimerDate[new Date().toDateString()],
+                    seconds)
+                }</CardTitle>
+                <CardDescription>Сьогодні</CardDescription>
+            </CardHeader>
         </Card>
         <Card>
-            <CardBody>
-                <Text>За останній тиждень:</Text>
-                <Heading size="lg">{
-                    getStringByTimerObject(getNumbersBySeconds(currentTimerDate[new Date().toDateString()]))
-                }</Heading>
-            </CardBody>
+        <CardHeader>
+                <CardTitle>{
+                   0
+                }</CardTitle>
+                <CardDescription>За останній тиждень</CardDescription>
+            </CardHeader>
         </Card>
-        <Card align="center">
-            <CardBody>
-                <Text textAlign="center" fontSize="xl">Управління</Text>
-                <Stack direction="row" spacing={4} align="center">
-                    <IconButton onClick={()=>{ 
-
-                        }} 
-                        size="sm"
-                        aria-label="zen-mode"
-                        icon={<i className="fa-solid fa-angle-right"></i>} 
-                    />
-                    <IconButton onClick={()=>{ 
-                            isPaused ? startTimer() : stopTimer()
-                        }} 
-                        isRound={true}
-                        colorScheme='blue'
-                        aria-label={isPaused ? 'Старт' : 'Продовжити'}
-                        icon={<i className={`fa fa-${isPaused ? "play" :"pause" }`}></i>} 
-                    />
-                    <IconButton onClick={()=>{ 
-                            
-                        }} 
-                        size="sm"
-                        aria-label="zen-mode"
-                        icon={<i className="fa-solid fa-expand"></i>} 
-                    />
-                </Stack>
-            </CardBody>
+        <Card >
+            <CardHeader>
+                 <CardTitle>{
+                   seconds
+                }
+                </CardTitle>
+                <CardDescription>Тест додаткові секунди</CardDescription>
+            </CardHeader>
+            
         </Card>
-        <Card className="dashboard__graph">
-            <CardBody>
-            <ResponsiveContainer width="100%" height="100%" >
+        <Card className="col-span-4 ">
+            
+            <CardHeader>
+                <CardDescription>Активність за останній тиждень</CardDescription>
+            </CardHeader>
+            <CardContent >
+            <ResponsiveContainer width="100%" height={356} >
                 <AreaChart
                     width={400}
                     height={300}
@@ -150,9 +109,14 @@ const Dashboard = ({currentTimerDate,currentTimer,isPaused,startTimer,stopTimer,
                     <Area type="monotone" dataKey="hours" stroke="#8884d8" fill="#8884d8" />
                 </AreaChart>
             </ResponsiveContainer>
-            </CardBody>
+            </CardContent>
         </Card>
         </div>
+        </>
+    )
+    return (
+      <div className="h-full">
+        {selectedTimerID ? renderDashboard : <TypographyLead>Оберіть таймер</TypographyLead>}
     </div>
     )
 }
