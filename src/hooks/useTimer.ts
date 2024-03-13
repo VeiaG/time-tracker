@@ -5,7 +5,7 @@ export type CurrentTimer = {
     start:Date | undefined
 }
 
-const useTimer = (onStop : (timeElapsed: number)=>void)=>{
+const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
     const [currentTimer,setCurrentTimer] = useLocalForage<CurrentTimer>('currentTimer',{start:undefined});
 
     const [isPaused,setIsPaused] = useState<boolean>(!currentTimer.start);
@@ -22,12 +22,11 @@ const useTimer = (onStop : (timeElapsed: number)=>void)=>{
             Math.floor((newDate.getTime() - currentTimer.start.getTime())/1000) : 0;
         setElapsedSeconds(timeElapsed);
     },[currentTimer.start]);
-    useEffect(()=>{
-        console.log('curTimer update:',currentTimer);
-    },[currentTimer]);
+
+    //fire once
     useEffect(()=>{
         updateElapsedSeconds();
-    },[]);
+    },[updateElapsedSeconds]);
     useEffect(()=>{
         let interval:ReturnType<typeof setInterval>;
         if(!isPaused){
@@ -48,16 +47,19 @@ const useTimer = (onStop : (timeElapsed: number)=>void)=>{
         const newDate = new Date();
         setCurrentTimer({start:newDate});
     }
-    const stopTimer = ()=>{
+    const stopTimer = async()=>{
         
-        setElapsedSeconds(0);
+        
         const newDate = new Date();
 
         const timeElapsed = currentTimer.start ? newDate.getTime() - currentTimer.start.getTime() : 0;
 
         setCurrentTimer({start:undefined});
-
-        onStop(timeElapsed);
+        
+        
+        await onStop(timeElapsed);
+        setElapsedSeconds(0);
+        
     }
     return [startTimer,stopTimer,isPaused,seconds] as const;
 }

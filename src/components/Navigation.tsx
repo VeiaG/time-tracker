@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import { getStyledStringByTimerObject } from "@/lib/timeUtils";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -49,9 +49,13 @@ import { TypographyMuted } from "./ui/typography";
 type NavigationProps = {
   addTimer: (timerName: string) => void;
   toggleTimer:(id:string)=>void,
-  isPaused: boolean;
-  currentTimer: Timer | undefined;
-  currentID: string;
+  isPaused: boolean,
+  seconds: number,
+  currentTimer: Timer | undefined,
+  currentID: string,
+  setCurrentId: (id: string) => void,
+  unselectTimer:()=>void,
+  
 };
 
 const Navigation = ({
@@ -60,6 +64,9 @@ const Navigation = ({
   toggleTimer,
   isPaused,
   currentTimer,
+  setCurrentId,
+  unselectTimer,
+  seconds,
 }: NavigationProps) => {
   const [isOpen, setOpen] = useState(false);
   const onOpen = () => setOpen(true);
@@ -106,40 +113,14 @@ const Navigation = ({
                 </div>
               </PopoverContent>
             </Popover>
-            <NavigationMenuItem className="
-              flex gap-0 items-center
-            ">
-              { (
-                <>
-                  <Button onClick={()=>navigate(`/timers/${currentID}`)} 
-                  className="rounded-r-none"
-                  variant="outline"
-                  disabled={!currentID}
-                  >
-                    <i className="fa-solid fa-clock mr-2"></i>
-                    
-                    <div className="truncate max-w-24">{
-                      currentTimer?.name || (<TypographyMuted>Не обрано</TypographyMuted>) }
-                    </div>
-                  </Button>
-                  <Button size="icon" className="rounded-none"
-                    onClick={() => toggleTimer(currentID)}
-                    disabled={!currentID}
-                  >
-                    {
-                      <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
-                    }
-                  </Button>
-                  <Button size="icon"
-                    onClick={() => {}} 
-                    variant="outline"
-                    disabled={!currentID}
-                    className="rounded-l-none">
-                    <i className="fa-solid fa-expand"></i>
-                  </Button>
-                </>
-              )}
-            </NavigationMenuItem>
+            <TimerNameMenu
+              isPaused={isPaused}
+              currentID={currentID}
+              currentTimer={currentTimer}
+              toggleTimer={toggleTimer}
+              unselectTimer={unselectTimer}
+              seconds={seconds}
+              />
             <AvatarMenu/>
           </NavigationMenuList>
         </NavigationMenu>
@@ -257,6 +238,68 @@ const AvatarMenu = ()=>{
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+type TimerNameMenuProps = {
+  currentID: string,
+  isPaused: boolean,
+  currentTimer: Timer | undefined,
+  toggleTimer:(id:string)=>void,
+  unselectTimer:()=>void,   
+  seconds: number,
+}
+const TimerNameMenu = ({currentID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer}:TimerNameMenuProps)=>{
+  const navigate=  useNavigate();
+  return (
+    <NavigationMenuItem className="
+              flex gap-0 items-center
+            ">
+    <DropdownMenu >
+      <DropdownMenuTrigger asChild>
+          <Button  
+          className="rounded-r-none"
+          variant="outline"
+          disabled={!currentID}
+          >
+            <i className="fa-solid fa-clock mr-2"></i>
+            <div className="truncate max-w-32">{
+              getStyledStringByTimerObject(currentTimer?.totalTime || 0 , seconds) || (<TypographyMuted>00:00:00</TypographyMuted>) }
+            </div>
+          </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-full">
+      <DropdownMenuLabel>{currentTimer?.name}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={()=>navigate(`/${currentID}`)}>
+            
+            <span>Детальніше</span>
+            
+          </DropdownMenuItem>
+        
+          <DropdownMenuItem onClick={unselectTimer}>
+            
+            <span className=" text-red-800 dark:text-red-400">Зняти вибір</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+    <Button size="icon" className="rounded-none"
+                    onClick={() => toggleTimer(currentID)}
+                    disabled={!currentID}
+                  >
+                    {
+                      <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
+                    }
+                  </Button>
+                  <Button size="icon"
+                    onClick={() => {}} 
+                    variant="outline"
+                    disabled={!currentID}
+                    className="rounded-l-none">
+                    <i className="fa-solid fa-expand"></i>
+                  </Button>
+    </NavigationMenuItem>
   )
 }
 

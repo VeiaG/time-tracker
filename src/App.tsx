@@ -38,9 +38,9 @@ function App() {
   
   const [currentTimerDate,setCurrentTimerDate] = useState<TimerDates>({});
 
-  const [currentTimer,setCurrentTimer] = useState<Timer>();
+  const [currentTimer,setCurrentTimer] = useState<Timer | undefined>();
 
-  const [currentId,setCurrentId] = useState<string>('');
+  const [currentId,setCurrentId] = useState<string | undefined>(undefined);
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
 
@@ -74,13 +74,27 @@ function App() {
       }
       const newTimers = {...timers};
 
-      newTimers[currentId].totalTime += timeElapsed;
+      if(currentId){
+        newTimers[currentId].totalTime += timeElapsed;
+      }
       setCurrentTimerDate(newTimerDate);
-      await localforage.setItem(currentId,newTimerDate);
+      
 
-      setTimers(newTimers);
+      if(currentId){
+        await localforage.setItem(currentId,newTimerDate);
+      }
+      await setTimers(newTimers);
+      return;
     }
   const [startTimer,stopTimer,isPaused,seconds] = useTimer(timerCallback);
+
+  const unselectTimer = () => {
+    stopTimer();
+    setCurrentTimer(undefined);
+    setCurrentTimerDate({});
+    setSelectedTimerID('');
+
+  }
 
   const toggleTimer = (id:string) => {
     if(isPaused){
@@ -127,6 +141,10 @@ function App() {
   }
   return (
       <div className="min-h-dvh h-dvh max-h-dvh pt-24 relative box-border">
+        <div className=" lg:hidden
+          flex items-center justify-center top-0 left-0 fixed w-full h-dvh bg-black z-50">
+          Сайт не оптимізовано для таких розмірів екрану
+        </div>
        <ScrollArea className="h-full max-h-full min-h-full relative box-border">
        <ThemeProvider>
         <Toaster />
@@ -137,7 +155,10 @@ function App() {
             toggleTimer={toggleTimer}
             isPaused={isPaused}
             currentTimer={currentTimer}
-            currentID={selectedTimerID}/>
+            currentID={selectedTimerID}
+            setCurrentId={setCurrentId}
+            unselectTimer={unselectTimer}
+            seconds={seconds}/>
           
           <div className="container flex flex-col gap-2 relative h-full box-border">
             <Breadcrumb>
@@ -165,15 +186,19 @@ function App() {
                   timers={timers} 
                   toggleTimer={toggleTimer}
                   seconds={seconds}
+                  
                   selectedTimerID={selectedTimerID}/>
                 <Content>
                   <TimerView 
                     selectedID={selectedTimerID}
                     timers={timers}
-                    
+                    seconds={seconds}
                     isPaused={isPaused}
                     toggleTimer={toggleTimer}
-                    setSelectedTimerID={setSelectedTimerID}/>
+                    deleteTimer={deleteTimer}
+                    setTimers={setTimers}
+                    unselectTimer={unselectTimer}
+                    />
                 </Content> </>}/>
               <Route path="/" element={
                 <>
@@ -186,7 +211,6 @@ function App() {
                   <Content>
                   <Dashboard currentTimer={currentTimer ?? {} as Timer} 
                     currentTimerDate={currentTimerDate ?? {} as TimerDates}
-                    isPaused={isPaused}
                     seconds={seconds}
                     selectedTimerID={selectedTimerID}/>
                   </Content>

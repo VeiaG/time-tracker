@@ -12,9 +12,9 @@ export const useLocalForage = <T>(key: string,initialState:T) => {
             }
         });
     },[key]);
-    const setLocalForage = (newState:T) => {
+    const setLocalForage =async (newState:T) => {
         setState(newState);
-        localforage.setItem(key,newState);
+        return localforage.setItem(key,newState);
     }
     return [state,setLocalForage] as const;
 };
