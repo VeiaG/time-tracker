@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { ReactElement, useContext, useState } from 'react';
 import {Timer,TimerDates,} from '../App';
 import localforage from 'localforage';
 import { useEffect } from 'react';
@@ -63,6 +63,7 @@ import { TimerContext } from '@/contexts/TimerContext';
   
 import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { ContentType } from 'recharts/types/component/DefaultLegendContent';
 
 const TimerView = () => {
     const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer} = useContext(TimerContext);
@@ -274,7 +275,7 @@ const TimerView = () => {
                         }
                         />
                         <YAxis />
-                        <Tooltip  content={<CustomTooltip/>}/>
+                        <Tooltip  content={(<CustomTooltip />)}/>
                         <Area
                         type="monotone"
                         dataKey="hours"
