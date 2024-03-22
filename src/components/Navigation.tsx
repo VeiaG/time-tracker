@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Timer } from "../App";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils"
@@ -57,27 +57,19 @@ type NavigationProps = {
   unselectTimer:()=>void,
   
 };
-
-const Navigation = ({
-  currentID,
-  addTimer,
-  toggleTimer,
-  isPaused,
-  currentTimer,
-  setCurrentId,
-  unselectTimer,
-  seconds,
-}: NavigationProps) => {
+import { TimerContext } from "@/contexts/TimerContext";
+const Navigation = () => {
+  const {
+    addTimer,
+  } = useContext(TimerContext);
   const [isOpen, setOpen] = useState(false);
-  const onOpen = () => setOpen(true);
+
   const onClose = () => setOpen(false);
 
   const [value, setValue] = useState("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setValue(event.target.value);
-
-  const navigate = useNavigate();
 
   const handleClose = () => {
     if (value) {
@@ -113,14 +105,7 @@ const Navigation = ({
                 </div>
               </PopoverContent>
             </Popover>
-            <TimerNameMenu
-              isPaused={isPaused}
-              currentID={currentID}
-              currentTimer={currentTimer}
-              toggleTimer={toggleTimer}
-              unselectTimer={unselectTimer}
-              seconds={seconds}
-              />
+            <TimerNameMenu />
             <AvatarMenu/>
           </NavigationMenuList>
         </NavigationMenu>
@@ -240,15 +225,9 @@ const AvatarMenu = ()=>{
     </DropdownMenu>
   )
 }
-type TimerNameMenuProps = {
-  currentID: string,
-  isPaused: boolean,
-  currentTimer: Timer | undefined,
-  toggleTimer:(id:string)=>void,
-  unselectTimer:()=>void,   
-  seconds: number,
-}
-const TimerNameMenu = ({currentID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer}:TimerNameMenuProps)=>{
+const TimerNameMenu = ()=>{
+  
+  const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer} = useContext(TimerContext);
   const navigate=  useNavigate();
   return (
     <NavigationMenuItem className="
@@ -259,7 +238,7 @@ const TimerNameMenu = ({currentID,isPaused,currentTimer,seconds,unselectTimer,to
           <Button  
           className="rounded-r-none"
           variant="outline"
-          disabled={!currentID}
+          disabled={!selectedTimerID}
           >
             <i className="fa-solid fa-clock mr-2"></i>
             <div className="truncate max-w-32">{
@@ -271,7 +250,7 @@ const TimerNameMenu = ({currentID,isPaused,currentTimer,seconds,unselectTimer,to
       <DropdownMenuLabel>{currentTimer?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={()=>navigate(`/${currentID}`)}>
+          <DropdownMenuItem onClick={()=>navigate(`/${selectedTimerID}`)}>
             
             <span>Детальніше</span>
             
@@ -285,8 +264,8 @@ const TimerNameMenu = ({currentID,isPaused,currentTimer,seconds,unselectTimer,to
       </DropdownMenuContent>
     </DropdownMenu>
     <Button size="icon" className="rounded-none"
-                    onClick={() => toggleTimer(currentID)}
-                    disabled={!currentID}
+                    onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
+                    disabled={!selectedTimerID}
                   >
                     {
                       <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
@@ -295,7 +274,7 @@ const TimerNameMenu = ({currentID,isPaused,currentTimer,seconds,unselectTimer,to
                   <Button size="icon"
                     onClick={() => {}} 
                     variant="outline"
-                    disabled={!currentID}
+                    disabled={!selectedTimerID}
                     className="rounded-l-none">
                     <i className="fa-solid fa-expand"></i>
                   </Button>

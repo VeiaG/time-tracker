@@ -1,37 +1,15 @@
-import { useNavigate, Link } from "react-router-dom"
-import { AllTimers } from "../App";
-import { TypographyH1, TypographyP, TypographyH3, TypographyH4 } from "./ui/typography";
+import { useNavigate,  } from "react-router-dom"
+import { TypographyH3 } from "./ui/typography";
 
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-  } from "@/components/ui/card"
-  import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-  
-type SideBarProps = {
-    timers: AllTimers,
-    selectedTimerID: string,
-    isPaused:boolean,
-    seconds:number,
-    toggleTimer:(id:string)=>void,
-}
-const SideBar = ({timers,selectedTimerID,isPaused,seconds,toggleTimer}:SideBarProps) => {
+import { useContext } from "react";
+import { TimerContext } from "@/contexts/TimerContext";
+
+const SideBar = () => {
+    const {timers,selectedTimerID,isPaused,seconds,toggleTimer} = useContext(TimerContext);
     const navigate = useNavigate();
     console.log(selectedTimerID);
   return (
@@ -44,26 +22,6 @@ const SideBar = ({timers,selectedTimerID,isPaused,seconds,toggleTimer}:SideBarPr
             <Input placeholder="Пошук" className="pl-8"></Input>
         </div>
        
-        {/* <Card>
-            <CardContent className="p-0">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="min-w-[200px]">Назва</TableHead>
-                        <TableHead>Час</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody> 
-                    {timers && Object.entries(timers).map(([id,timer]) => (
-                    <TableRow key={id} className={id===selectedTimerID ? " " : ""}>
-                        <TableCell><TypographyH3>{timer.name}</TypographyH3></TableCell>
-                        <TableCell>{timer.totalTime}</TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-                </Table>
-            </CardContent>
-        </Card> */}
         <ScrollArea className="flex-grow h-[calc(100dvh-16rem)] relative w-full" >
             <div className="flex flex-col gap-4 pr-4 relative w-full">
                 {timers && Object.entries(timers).map(([id,timer]) => {

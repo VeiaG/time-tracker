@@ -1,6 +1,7 @@
 import { Timer, TimerDates } from "../App";
 import { getNumbersBySeconds, getTimerDatesByRange ,round } from "@/lib/timeUtils";
-
+import { useContext, useEffect, useState } from "react";
+import CustomTooltip from "./CustomTooltip";
 import {
   AreaChart,
   Area,
@@ -18,30 +19,34 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TypographyH1, TypographyLead, TypographyMuted } from "./ui/typography";
+import { TimerContext } from "@/contexts/TimerContext";
 
-type DashboardProps = {
-  currentTimerDate: TimerDates,
-  currentTimer: Timer,
-  selectedTimerID: string,
-  seconds: number,
-};
 
-const Dashboard = ({
-  currentTimerDate,
-  currentTimer,
-  selectedTimerID,
-  seconds,
-}: DashboardProps) => {
+const Dashboard = () => {
 
   
+  const {
+    currentTimerDate,
+    currentTimer,
+    selectedTimerID,
+    seconds,
+  } = useContext(TimerContext);
 
   //make data for graph only for last 7 days
-  const sevenDaysObj = getTimerDatesByRange(
-    new Date(new Date().setDate(new Date().getDate() - 7)),
-    new Date(),
-    currentTimerDate,
-    seconds
-  );
+  type Data ={
+    name:string,
+    ms:number
+  }
+  const [sevenDaysObj, setSevenDaysObj] = useState<Data[]>([]);
+  useEffect(() => {
+    const sevenDaysObj = getTimerDatesByRange(
+      new Date(new Date().setDate(new Date().getDate() - 7)),
+      new Date(),
+      currentTimerDate,
+      seconds
+    );
+    setSevenDaysObj(sevenDaysObj);
+  }, [currentTimerDate, seconds]);
   const data = sevenDaysObj.map((day) => {
     return {
       name: day.name,
@@ -115,7 +120,8 @@ const Dashboard = ({
                   }
                 />
                 <YAxis />
-                <Tooltip formatter={(value) => [value + " год.", "Час"]} />
+                <Tooltip formatter={(value) => [value + " год.", "Час"]} 
+                content={<CustomTooltip/>}/>
                 <Area
                   type="monotone"
                   dataKey="hours"

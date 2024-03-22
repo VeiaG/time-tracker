@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import {Timer,TimerDates, AllTimers} from '../App';
+import { useContext, useState } from 'react';
+import {Timer,TimerDates,} from '../App';
 import localforage from 'localforage';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -31,10 +31,11 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
-  import { getNumbersBySeconds, getTimerDatesByRange ,round,getTimerDatesAll } from "@/lib/timeUtils";
-import { Link } from 'react-router-dom'
+import { getNumbersBySeconds, getTimerDatesByRange ,round,getTimerDatesAll } from "@/lib/timeUtils";
 import { Input } from './ui/input';
 import { Label } from "@/components/ui/label"
+import CustomTooltip from "./CustomTooltip";
+import { Calendar } from "@/components/ui/calendar"
 
 import {
     Dialog,
@@ -57,21 +58,16 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
+import { DateRange } from 'react-day-picker';
+import { TimerContext } from '@/contexts/TimerContext';
   
-type TimerProps={
-    selectedID:string,
-    timers:AllTimers,
-    isPaused:boolean,
-    seconds:number,
-    toggleTimer:(id:string)=>void,
-    deleteTimer:(id:string)=>void,
-    setTimers:(timers:AllTimers)=>void,
-    unselectTimer:()=>void,
-}
+import { uk } from 'date-fns/locale';
+import { format } from 'date-fns';
 
-
-
-const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds,setTimers,deleteTimer} :TimerProps) => {
+const TimerView = () => {
+    const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer} = useContext(TimerContext);
+    
+    
     const [currentTimer,setCurrentTimer] = useState<Timer>();
     const params = useParams();
     const id = params?.id as string;
@@ -104,22 +100,22 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
     },[id,currentId]);
 
     useEffect(() => {
-        if(selectedID !== currentId){
+        if(selectedTimerID !== currentId){
             setAdditionalSeconds(0);
         }
         else{
             setAdditionalSeconds(seconds);
         }
-    },[currentId,selectedID,seconds]);
+    },[currentId,selectedTimerID,seconds]);
 
     useEffect(()=>{
-        if(currentId === selectedID){
+        if(currentId === selectedTimerID){
             setIsCurrentPaused(isPaused);
         }
         else{
             setIsCurrentPaused(true);
         }
-    },[selectedID,isPaused,currentId]);
+    },[selectedTimerID,isPaused,currentId]);
 
     
     const allDates = getTimerDatesAll(currentTimerDate,additionalSeconds);
@@ -130,6 +126,7 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
         hours: round(day.ms / 1000 / 60 / 60, 2),
         };
     });
+
     const allDatesMedium = round(
         (allDates.reduce((acc, cur) => {
             return acc + cur.ms;
@@ -141,6 +138,9 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
     
     const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
+    
+   
+
     return (
 
         <div className="flex flex-col gap-4 items-start ">
@@ -184,7 +184,7 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
                         <AlertDialogFooter>
                         <AlertDialogCancel>Відміна</AlertDialogCancel>
                         <AlertDialogAction onClick={()=>{
-                            if(currentId === selectedID){
+                            if(currentId === selectedTimerID){
                                 unselectTimer();
                             }
                             deleteTimer(currentId);
@@ -274,7 +274,7 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
                         }
                         />
                         <YAxis />
-                        <Tooltip formatter={(value) => [value + " год.", "Час"]} />
+                        <Tooltip  content={<CustomTooltip/>}/>
                         <Area
                         type="monotone"
                         dataKey="hours"
@@ -288,7 +288,9 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
             </div>
             </TabsContent>
             <TabsContent value="details">
-
+                <DetailsView 
+                currentTimerDate={currentTimerDate} 
+                additionalSeconds={additionalSeconds}/>
             </TabsContent>
             </Tabs>
             
@@ -297,6 +299,117 @@ const TimerView = ({unselectTimer,timers,selectedID,isPaused,toggleTimer,seconds
             
             
         </div>
+    )
+}
+type DetailsViewProps = {
+    currentTimerDate:TimerDates,
+    additionalSeconds:number
+}
+const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
+    const today = new Date(new Date().setHours(0, 0, 0, 0));
+    const [viewRange, setViewRange] = useState<DateRange | undefined>({
+        from:today,
+        to:today
+    });
+    
+
+    const startDate = viewRange?.from || today;
+
+    const endDate = viewRange?.to || startDate;
+
+    
+    const timerDates = 
+        getTimerDatesByRange(startDate,endDate,currentTimerDate,additionalSeconds);
+    
+    const data = timerDates.map((day) => {
+        return {
+        name: day.name,
+        hours: round(day.ms / 1000 / 60 / 60, 2),
+        };
+    });
+    const rangeTotal = round(
+        (timerDates.reduce((acc, cur) => {
+            return acc + cur.ms;
+        }, 0)),2
+    );
+    const rangeMedium = round(rangeTotal / timerDates.length,2);
+    
+    
+    return (<>
+            <div className="grid grid-cols-3 gap-4 h-full mt-4 ">
+                <Calendar
+                    mode="range"
+                    selected={viewRange}
+                    onSelect={setViewRange}
+                    numberOfMonths={2}
+                    className="rounded-md border row-span-3 col-span-2 items-center justify-center flex"
+                    locale={uk}
+                />
+                <Card >
+                    <CardHeader>
+                        <CardTitle>
+                            Період
+                        </CardTitle>
+                        <CardDescription>
+                            {format(startDate,'d MMMM yyyy', { locale: uk })} - {format(endDate,'d MMMM yyyy', { locale: uk })}
+                        </CardDescription>
+                    </CardHeader>
+                </Card>
+                <Card>
+                <CardHeader>
+                    <CardTitle>
+                    {getNumbersBySeconds(rangeTotal)}
+                    </CardTitle>
+                    <CardDescription>Часу витрачено</CardDescription>
+                </CardHeader>
+                </Card>
+                <Card>
+                <CardHeader>
+                    <CardTitle>
+                    {getNumbersBySeconds(rangeMedium)}
+                    </CardTitle>
+                    <CardDescription>В середньому</CardDescription>
+                </CardHeader>
+                </Card>
+                
+                <Card className="col-span-3 ">
+                <CardHeader>
+                    <CardDescription>Активність в цей період</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ResponsiveContainer width="100%" height={356}>
+                    <AreaChart
+                        width={400}
+                        height={300}
+                        data={data}
+                        margin={{
+                        top: 10,
+                        right: 30,
+                        left: 0,
+                        bottom: 0,
+                        }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                        dataKey="name"
+                        tickFormatter={(value) =>
+                            new Date(value).toLocaleDateString()
+                        }
+                        />
+                        <YAxis />
+                        <Tooltip  content={<CustomTooltip/>}/>
+                        <Area
+                        type="monotone"
+                        dataKey="hours"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        />
+                    </AreaChart>
+                    </ResponsiveContainer>
+                </CardContent>
+                </Card>
+            </div>
+    </>
     )
 }
 

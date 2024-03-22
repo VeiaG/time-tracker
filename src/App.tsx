@@ -2,7 +2,7 @@ import {useState,useEffect} from 'react';
 import Sidebar from './components/Sidebar'
 import TimerView from './components/TimerView'
 import Content from './components/Content';
-import { HashRouter, Routes,Route, Link } from 'react-router-dom';
+import { HashRouter, Routes,Route, Link, useLocation } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Navigation from './components/Navigation';
 import { useLocalForage } from './hooks/useLocalForage';
@@ -11,14 +11,10 @@ import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/themeProvider"
 import localforage from 'localforage';
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+
+
+import { TimerContext } from './contexts/TimerContext';
+import BreadcrumbsMenu from './components/BreadcrumbsMenu';
 
 export type AllTimers ={
   [id:string]:Timer,
@@ -40,13 +36,13 @@ function App() {
 
   const [currentTimer,setCurrentTimer] = useState<Timer | undefined>();
 
-  const [currentId,setCurrentId] = useState<string | undefined>(undefined);
+  const [currentID,setCurrentID] = useState<string | undefined>(undefined);
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
 
   useEffect(() => {
       if(selectedTimerID && timers){
-          setCurrentId(selectedTimerID);
+          setCurrentID(selectedTimerID);
           setCurrentTimer(timers[selectedTimerID]);
           localforage.getItem<TimerDates>(selectedTimerID).then((data) => {
               if(data){
@@ -74,14 +70,14 @@ function App() {
       }
       const newTimers = {...timers};
 
-      if(currentId){
-        newTimers[currentId].totalTime += timeElapsed;
+      if(currentID){
+        newTimers[currentID].totalTime += timeElapsed;
       }
       setCurrentTimerDate(newTimerDate);
       
 
-      if(currentId){
-        await localforage.setItem(currentId,newTimerDate);
+      if(currentID){
+        await localforage.setItem(currentID,newTimerDate);
       }
       await setTimers(newTimers);
       return;
@@ -139,80 +135,59 @@ function App() {
     await localforage.removeItem(id);
     setTimers(newTimers);
   }
+
+  
   return (
       <div className="min-h-dvh h-dvh max-h-dvh pt-24 relative box-border">
         <div className=" lg:hidden
           flex items-center justify-center top-0 left-0 fixed w-full h-dvh bg-black z-50">
           Сайт не оптимізовано для таких розмірів екрану
         </div>
+       <TimerContext.Provider value={
+          {
+            currentTimer,
+            setCurrentTimer,
+            currentTimerDate,
+            setCurrentTimerDate,
+            selectedTimerID,
+            setSelectedTimerID,
+            seconds,
+            timers,
+            setTimers,
+            addTimer,
+            deleteTimer,
+            toggleTimer,
+            unselectTimer,
+            isPaused,
+            currentID,
+            setCurrentID,
+          }
+        
+       }>
        <ScrollArea className="h-full max-h-full min-h-full relative box-border">
        <ThemeProvider>
         <Toaster />
         
         <HashRouter>
           
-          <Navigation addTimer={addTimer} 
-            toggleTimer={toggleTimer}
-            isPaused={isPaused}
-            currentTimer={currentTimer}
-            currentID={selectedTimerID}
-            setCurrentId={setCurrentId}
-            unselectTimer={unselectTimer}
-            seconds={seconds}/>
+          <Navigation />
           
           <div className="container flex flex-col gap-2 relative h-full box-border">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link to="/">Головна</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link to="/timers">Усі таймери</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbsMenu/>
           <div className="flex gap-4 relative grow">
           
           <Routes>
               <Route path="/:id" element={
                 <>
-                <Sidebar 
-                  isPaused={isPaused}
-                  timers={timers} 
-                  toggleTimer={toggleTimer}
-                  seconds={seconds}
-                  
-                  selectedTimerID={selectedTimerID}/>
+                <Sidebar />
                 <Content>
-                  <TimerView 
-                    selectedID={selectedTimerID}
-                    timers={timers}
-                    seconds={seconds}
-                    isPaused={isPaused}
-                    toggleTimer={toggleTimer}
-                    deleteTimer={deleteTimer}
-                    setTimers={setTimers}
-                    unselectTimer={unselectTimer}
-                    />
+                  <TimerView />
                 </Content> </>}/>
               <Route path="/" element={
                 <>
-                  <Sidebar 
-                    isPaused={isPaused}
-                    timers={timers} 
-                    toggleTimer={toggleTimer}
-                    seconds={seconds}
-                    selectedTimerID={selectedTimerID}/>
+                  <Sidebar/>
                   <Content>
-                  <Dashboard currentTimer={currentTimer ?? {} as Timer} 
-                    currentTimerDate={currentTimerDate ?? {} as TimerDates}
-                    seconds={seconds}
-                    selectedTimerID={selectedTimerID}/>
+                    <Dashboard />
                   </Content>
                 </>
               } />
@@ -222,6 +197,7 @@ function App() {
         </HashRouter>
         </ThemeProvider>
        </ScrollArea>
+       </TimerContext.Provider>
       </div>
   )
 }

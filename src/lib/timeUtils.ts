@@ -1,4 +1,5 @@
-import { time } from "console";
+import { get } from "http";
+
 
 type TimerDates = {
     [key:string]:number
@@ -6,7 +7,7 @@ type TimerDates = {
 const getNumbersBySeconds = (miliseconds:number | undefined = 0,seconds:number = 0 ) => {
     if(miliseconds !== undefined && miliseconds !== null){
         const curSeconds = Math.floor(miliseconds / 1000) + 
-        seconds;
+        seconds || 0;
         const days = Math.floor(curSeconds / 86400);
         const hours = Math.floor((curSeconds / 3600)%24);
         const minutes = Math.floor((curSeconds % 3600) / 60);
@@ -84,7 +85,17 @@ const getStringByTimerObject = (timerObject:{days?:number,hours?:number,minutes?
     return string;
 }
 const getTimerDatesByRange =(startDate:Date,endDate:Date,currentTimerDate:TimerDates,seconds:number=0) => {
-    return Object.keys(currentTimerDate).filter((date) => {
+    console.log('getByRangeCall ~',startDate.toLocaleDateString(),endDate.toLocaleDateString(),currentTimerDate,seconds);
+    const objKeys = Object.keys(currentTimerDate);
+    // add dates from startDate to endDate if they are not in objKeys
+    const currentDate = new Date(endDate);
+    while(currentDate >= startDate){
+        if(!objKeys.includes(currentDate.toDateString())){
+            objKeys.push(currentDate.toDateString());
+        }
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
+    return objKeys.filter((date) => {
         const dateObj = new Date(date);
         return dateObj >= startDate && dateObj <= endDate;
     }).map((date) => {
@@ -94,21 +105,20 @@ const getTimerDatesByRange =(startDate:Date,endDate:Date,currentTimerDate:TimerD
         }
         return {
             name:date,
-            ms:currentTimerDate[date] + addSeconds*1000
+            ms:currentTimerDate[date] || 0 + addSeconds*1000
         };
+    }).sort((a,b) => {
+        return new Date(a.name).getTime() - new Date(b.name).getTime();
     });
 }
 const getTimerDatesAll = (currentTimerDate:TimerDates,seconds:number=0) => {
-    return Object.keys(currentTimerDate).map((date) => {
-        let addSeconds =0;
-        if(date === new Date().toDateString()){
-            addSeconds = seconds;
-        }
-        return {
-            name:date,
-            ms:currentTimerDate[date] + addSeconds*1000
-        };
+    const objKeys = Object.keys(currentTimerDate).sort((a,b) => {
+        return new Date(a).getTime() - new Date(b).getTime();
     });
+    const firstDate = new Date(objKeys[0]);
+    console.log("🚀 ~ getTimerDatesAll ~ firstDate:", firstDate)
+
+    return getTimerDatesByRange(firstDate,new Date(),currentTimerDate,seconds);
 }
 const round = (num: number, decimals: number) => {
     return Number(

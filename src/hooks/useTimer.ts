@@ -2,7 +2,7 @@ import {useState,useMemo, useEffect,useCallback} from 'react';
 import { useLocalForage } from './useLocalForage';
 
 export type CurrentTimer = {
-    start:Date | undefined
+    start:number | undefined
 }
 
 const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
@@ -17,9 +17,9 @@ const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
     },[elapsedSeconds]);
 
     const updateElapsedSeconds = useCallback(()=>{
-        const newDate = new Date();
+        const newDate = Date.now();
         const timeElapsed = currentTimer.start ? 
-            Math.floor((newDate.getTime() - currentTimer.start.getTime())/1000) : 0;
+            Math.floor((newDate - currentTimer.start)/1000) : 0;
         setElapsedSeconds(timeElapsed);
     },[currentTimer.start]);
 
@@ -27,6 +27,7 @@ const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
     useEffect(()=>{
         updateElapsedSeconds();
     },[updateElapsedSeconds]);
+    
     useEffect(()=>{
         let interval:ReturnType<typeof setInterval>;
         if(!isPaused){
@@ -44,15 +45,15 @@ const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
     },[currentTimer.start]);
     
     const startTimer = ()=>{
-        const newDate = new Date();
+        const newDate = Date.now();
         setCurrentTimer({start:newDate});
     }
     const stopTimer = async()=>{
         
         
-        const newDate = new Date();
+        const newDate = Date.now();
 
-        const timeElapsed = currentTimer.start ? newDate.getTime() - currentTimer.start.getTime() : 0;
+        const timeElapsed = currentTimer.start ? newDate - currentTimer.start : 0;
 
         setCurrentTimer({start:undefined});
         
