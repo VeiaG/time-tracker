@@ -6,30 +6,43 @@ import {
     BreadcrumbSeparator,
   } from "@/components/ui/breadcrumb"
 import { Link,  } from "react-router-dom"
+import { AllTimers } from "@/App"
 type BreadcrumbsMenuProps = {
-    secondPage?:{
-        name:string,
-        url:string
-    },
-    setSecondPage:(value:{name:string,url:string}|undefined)=>void
+    timers:AllTimers
 }
-const BreadcrumbsMenu = ({secondPage,setSecondPage}:BreadcrumbsMenuProps) => {
-    
+import { useLocation } from "react-router-dom"
+const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
+    const location = useLocation();
+    const pathnames = location.pathname.split("/").filter((x) => x);
     return (
         <Breadcrumb>
             <BreadcrumbList>
                 <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                        <Link to="/" onClick={()=>setSecondPage(undefined)}>Головна</Link>
+                        <Link to="/">Головна</Link>
                     </BreadcrumbLink>
                 </BreadcrumbItem>
-                {secondPage && <>
+                {pathnames.map((value, index) => {
+                    const to = `/${pathnames.slice(0, index + 1).join("/")}`;
+                    const pageName = timers[value] ? timers[value].name : value;
+                    return (
+                        <>
+                        <BreadcrumbSeparator />
+                            <BreadcrumbLink asChild >
+                                <Link className="truncate max-w-sm" key={index}
+                                    to={to}>{pageName}</Link>
+                            </BreadcrumbLink>
+                      </>
+                    )
+                })}
+
+                {/* {secondPage && <>
                     <BreadcrumbSeparator />
                     <BreadcrumbLink asChild >
                         <Link className="truncate max-w-sm" 
                             to={secondPage.url}>{secondPage.name}</Link>
                     </BreadcrumbLink>
-                </>}
+                </>} */}
             </BreadcrumbList>
         </Breadcrumb>
     )

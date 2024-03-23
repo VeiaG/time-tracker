@@ -178,7 +178,6 @@ const TimerView = () => {
                         <AlertDialogTitle>Ви впевнені ?</AlertDialogTitle>
                         <AlertDialogDescription>
                             Видалення таймера не може бути відмінено . 
-
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -193,7 +192,6 @@ const TimerView = () => {
                         }}>Видалити</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
-
                     <DialogContent >
                         <DialogHeader>
                             <DialogTitle>Редагувати таймер</DialogTitle>

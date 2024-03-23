@@ -10,7 +10,7 @@ import { TimerContext } from "@/contexts/TimerContext";
 import {useDebounce} from '@react-hook/debounce'
 import { getNumbersBySeconds } from "@/lib/timeUtils";
 const SideBar = () => {
-    const {timers,selectedTimerID,isPaused,seconds,toggleTimer,setSecondPage} = useContext(TimerContext);
+    const {timers,selectedTimerID,isPaused,seconds,toggleTimer} = useContext(TimerContext);
     const [searchInput, setSearchInput] = useDebounce('');
 
     const navigate = useNavigate();
@@ -33,11 +33,7 @@ const SideBar = () => {
                         <div key={id} 
                             className="flex gap-0 items-center justify-between w-full">
                                 <div className="flex flex-col gap-0 relative cursor-pointer flex-grow " 
-                                    onClick={()=>{  
-                                        setSecondPage({
-                                            name:timer.name,
-                                            url:`/${id}`
-                                        })
+                                    onClick={()=>{
                                         navigate(`/${id}`)
                                     }} >
                                     <h2 className=" font-bold text-xl truncate max-w-48 ">{timer.name}</h2>

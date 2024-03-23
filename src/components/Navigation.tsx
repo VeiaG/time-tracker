@@ -46,17 +46,6 @@ import {
 import { useTheme } from "./themeProvider";
 import { TypographyMuted } from "./ui/typography";
 
-type NavigationProps = {
-  addTimer: (timerName: string) => void;
-  toggleTimer:(id:string)=>void,
-  isPaused: boolean,
-  seconds: number,
-  currentTimer: Timer | undefined,
-  currentID: string,
-  setCurrentId: (id: string) => void,
-  unselectTimer:()=>void,
-  
-};
 import { TimerContext } from "@/contexts/TimerContext";
 const Navigation = () => {
   const {
@@ -227,7 +216,7 @@ const AvatarMenu = ()=>{
 }
 const TimerNameMenu = ()=>{
   
-  const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer,setSecondPage} = useContext(TimerContext);
+  const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer,setIsZenMode} = useContext(TimerContext);
   const navigate=  useNavigate();
   return (
     <NavigationMenuItem className="
@@ -251,10 +240,6 @@ const TimerNameMenu = ()=>{
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={()=>{
-            setSecondPage({
-              name:currentTimer?.name || "",
-              url:`/${selectedTimerID}`
-            });
             navigate(`/${selectedTimerID}`) ;
           }}>
             
@@ -278,7 +263,9 @@ const TimerNameMenu = ()=>{
                     }
                   </Button>
                   <Button size="icon"
-                    onClick={() => {}} 
+                    onClick={() => {
+                      setIsZenMode(true);
+                    }} 
                     variant="outline"
                     disabled={!selectedTimerID}
                     className="rounded-l-none">

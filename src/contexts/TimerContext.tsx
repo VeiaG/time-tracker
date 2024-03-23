@@ -2,7 +2,6 @@ import { createContext } from 'react';
 import { AllTimers ,Timer,TimerDates} from '../App';
 
 type TimerContextType = {
-    setSecondPage: (value:{name:string,url:string}|undefined)=>void,
     currentTimer:Timer | undefined,
     setCurrentTimer: (timer:Timer | undefined) => void,
     currentTimerDate: TimerDates ,
@@ -19,5 +18,8 @@ type TimerContextType = {
     setTimers: (timers:AllTimers) => void,
     currentID: string | undefined,
     setCurrentID: (id:string) => void,
+    isZenMode: boolean,
+    setIsZenMode: (isZenMode:boolean) => void,
 };
+
 export const TimerContext = createContext<TimerContextType>({} as TimerContextType);

@@ -11,11 +11,20 @@ import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/themeProvider"
 import localforage from 'localforage';
 import { ScrollArea } from "@/components/ui/scroll-area"
+import AboutPage from './components/AboutPage';
 
 
 import { TimerContext } from './contexts/TimerContext';
 import BreadcrumbsMenu from './components/BreadcrumbsMenu';
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 export type AllTimers ={
   [id:string]:Timer,
 }
@@ -27,7 +36,9 @@ export type TimerDates = {
   [key:string]:number
 }
 
-
+import { getStyledStringByTimerObject } from './lib/timeUtils';
+import { Button } from './components/ui/button';
+import { TypographyH1, TypographyH2, TypographyH3, TypographyMuted } from './components/ui/typography';
 
 function App() {
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
@@ -39,6 +50,7 @@ function App() {
   const [currentID,setCurrentID] = useState<string | undefined>(undefined);
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
+  const [isZenMode,setIsZenMode] = useLocalForage<boolean>('zenmode',false);
 
   useEffect(() => {
       if(selectedTimerID && timers){
@@ -84,7 +96,6 @@ function App() {
     }
   const [startTimer,stopTimer,isPaused,seconds] = useTimer(timerCallback);
 
-  const [secondPage,setSecondPage] = useState<{name:string , url:string}|undefined>(undefined);
   const unselectTimer = () => {
     stopTimer();
     setCurrentTimer(undefined);
@@ -135,7 +146,7 @@ function App() {
     await localforage.removeItem(id);
     setTimers(newTimers);
   }
-
+  
   
   return (
       <div className="min-h-dvh h-dvh max-h-dvh pt-24 relative box-border">
@@ -145,7 +156,6 @@ function App() {
         </div>
        <TimerContext.Provider value={
           {
-            setSecondPage,
             currentTimer,
             setCurrentTimer,
             currentTimerDate,
@@ -162,28 +172,55 @@ function App() {
             isPaused,
             currentID,
             setCurrentID,
+            isZenMode,
+            setIsZenMode,
           }
         
        }>
        <ScrollArea className="h-full max-h-full min-h-full relative box-border">
        <ThemeProvider>
         <Toaster />
-        
+          <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
+            <DialogContent className='h-screen max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
+              <div className='flex flex-col items-center justify-center gap-2'>
+                <div className='flex gap-2 items-center font-semibold text-4xl'>
+                  <i className="fa-regular fa-clock"></i>
+                  <span className="truncate max-w-sm">
+                    {currentTimer?.name || 'Щось пішло не так...' }
+                  </span>
+                </div >
+                <div className='font-bold mb-4 text-9xl'>
+                  {getStyledStringByTimerObject(currentTimer?.totalTime, seconds) || '00:00:00'}
+                </div>
+                <Button size="lg" className='px-8 py-6 text-2xl'
+                    onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
+                    disabled={!selectedTimerID}
+                  >
+                    {
+                      <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
+                    }
+                  </Button>
+              </div>
+               
+            </DialogContent>
+          </Dialog>
         <HashRouter>
           
           <Navigation />
           
           <div className="container flex flex-col gap-2 relative h-full box-border">
-            <BreadcrumbsMenu secondPage={secondPage} setSecondPage={setSecondPage}/>
+            <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative grow">
           
           <Routes>
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/:id" element={
                 <>
-                <Sidebar />
-                <Content>
-                  <TimerView />
-                </Content> </>}/>
+                  <Sidebar />
+                  <Content>
+                    <TimerView />
+                  </Content> 
+                </>}/>
               <Route path="/" element={
                 <>
                   <Sidebar/>
@@ -204,3 +241,5 @@ function App() {
 }
 
 export default App
+
+
