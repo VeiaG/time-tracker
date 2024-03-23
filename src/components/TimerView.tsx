@@ -65,7 +65,7 @@ import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
 
 const TimerView = () => {
-    const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer,setSecondPage} = useContext(TimerContext);
+    const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer} = useContext(TimerContext);
     
     
     const [currentTimer,setCurrentTimer] = useState<Timer>();
