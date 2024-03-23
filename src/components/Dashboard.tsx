@@ -60,7 +60,7 @@ const Dashboard = () => {
   const renderDashboard = (
     <>
       <TypographyH1>
-        <div className="truncate max-w-3xl ">{currentTimer?.name}</div>
+        <div className="truncate max-w-3xl h-16 ">{currentTimer?.name}</div>
       </TypographyH1>
       <TypographyMuted>Обраний таймер</TypographyMuted>
       <div className="grid grid-cols-4 gap-4 h-full mt-4">

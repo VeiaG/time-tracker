@@ -27,7 +27,7 @@ const SideBar = () => {
        
         <ScrollArea className="flex-grow h-[calc(100dvh-16rem)] relative w-full" >
             <div className="flex flex-col gap-4 pr-4 relative w-full">
-                {timers && Object.entries(timers).filter(([,timer])=> timer.name.includes(searchInput)).map(([id,timer]) => {
+                {timers && Object.entries(timers).filter(([,timer])=> timer.name.toLowerCase().includes(searchInput.toLowerCase())).map(([id,timer]) => {
                     const isCurrent = id===selectedTimerID;
                     return (
                         <div key={id} 
