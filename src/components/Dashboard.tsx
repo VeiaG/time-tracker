@@ -50,7 +50,7 @@ const Dashboard = () => {
   const data = sevenDaysObj.map((day) => {
     return {
       name: day.name,
-      hours: round(day.ms / 1000 / 60 / 60, 2),
+      hours: day.ms,
     };
   });
   const sevenDaysSeconds = sevenDaysObj.reduce((acc, cur) => {
@@ -60,7 +60,7 @@ const Dashboard = () => {
   const renderDashboard = (
     <>
       <TypographyH1>
-        <div className="truncate max-w-3xl">{currentTimer?.name}</div>
+        <div className="truncate max-w-3xl ">{currentTimer?.name}</div>
       </TypographyH1>
       <TypographyMuted>Обраний таймер</TypographyMuted>
       <div className="grid grid-cols-4 gap-4 h-full mt-4">
@@ -119,7 +119,7 @@ const Dashboard = () => {
                     new Date(value).toLocaleDateString()
                   }
                 />
-                <YAxis />
+                
                 <Tooltip formatter={(value) => [value + " год.", "Час"]} 
                 content={<CustomTooltip/>}/>
                 <Area
@@ -128,6 +128,7 @@ const Dashboard = () => {
                   stroke="#8884d8"
                   fill="#8884d8"
                 />
+                <YAxis tick={false} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>

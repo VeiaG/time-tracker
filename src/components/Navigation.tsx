@@ -227,7 +227,7 @@ const AvatarMenu = ()=>{
 }
 const TimerNameMenu = ()=>{
   
-  const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer} = useContext(TimerContext);
+  const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer,setSecondPage} = useContext(TimerContext);
   const navigate=  useNavigate();
   return (
     <NavigationMenuItem className="
@@ -250,7 +250,13 @@ const TimerNameMenu = ()=>{
       <DropdownMenuLabel>{currentTimer?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={()=>navigate(`/${selectedTimerID}`)}>
+          <DropdownMenuItem onClick={()=>{
+            setSecondPage({
+              name:currentTimer?.name || "",
+              url:`/${selectedTimerID}`
+            });
+            navigate(`/${selectedTimerID}`) ;
+          }}>
             
             <span>Детальніше</span>
             

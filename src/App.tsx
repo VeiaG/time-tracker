@@ -84,12 +84,12 @@ function App() {
     }
   const [startTimer,stopTimer,isPaused,seconds] = useTimer(timerCallback);
 
+  const [secondPage,setSecondPage] = useState<{name:string , url:string}|undefined>(undefined);
   const unselectTimer = () => {
     stopTimer();
     setCurrentTimer(undefined);
     setCurrentTimerDate({});
     setSelectedTimerID('');
-
   }
 
   const toggleTimer = (id:string) => {
@@ -145,6 +145,7 @@ function App() {
         </div>
        <TimerContext.Provider value={
           {
+            setSecondPage,
             currentTimer,
             setCurrentTimer,
             currentTimerDate,
@@ -173,7 +174,7 @@ function App() {
           <Navigation />
           
           <div className="container flex flex-col gap-2 relative h-full box-border">
-            <BreadcrumbsMenu/>
+            <BreadcrumbsMenu secondPage={secondPage} setSecondPage={setSecondPage}/>
           <div className="flex gap-4 relative grow">
           
           <Routes>

@@ -6,12 +6,13 @@ type CustomTooltipProps = {
     }[];
     label?: string;
   };
+import { getNumbersBySeconds } from "@/lib/timeUtils";
 const CustomTooltip = ({ active, payload, label } :CustomTooltipProps ) => {
     if (active && payload && payload.length) {
       return (
         <Card>
           <CardHeader>
-            <CardDescription>{`${new Date(label || new Date() ).toLocaleDateString()} : ${payload[0]?.value}`} год.</CardDescription>
+            <CardDescription>{`${new Date(label || new Date() ).toLocaleDateString()} : ${getNumbersBySeconds(payload[0]?.value)}`} </CardDescription>
           </CardHeader>
         </Card>
       );

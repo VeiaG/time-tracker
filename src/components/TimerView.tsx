@@ -63,10 +63,9 @@ import { TimerContext } from '@/contexts/TimerContext';
   
 import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
-import { ContentType } from 'recharts/types/component/DefaultLegendContent';
 
 const TimerView = () => {
-    const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer} = useContext(TimerContext);
+    const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer,setSecondPage} = useContext(TimerContext);
     
     
     const [currentTimer,setCurrentTimer] = useState<Timer>();
@@ -124,7 +123,7 @@ const TimerView = () => {
     const allDatesData = allDates.map((day) => {
         return {
         name: day.name,
-        hours: round(day.ms / 1000 / 60 / 60, 2),
+        hours: day.ms,
         };
     });
 
@@ -147,10 +146,10 @@ const TimerView = () => {
         <div className="flex flex-col gap-4 items-start ">
             <div className="flex items-center justify-between w-full relative" >
                 <TypographyH1 className="w-full flex justify-center items-center">
-                    <div className="truncate max-w-screen-sm flex items-center h-16">{currentTimer?.name}</div>
+                    <div className="truncate max-w-screen-sm text-center h-16 ">{currentTimer?.name}</div>
                 </TypographyH1>
                 <Dialog onOpenChange={(open:boolean)=>{
-                    if(!open){setRenameInput('')}
+                    if(!open){setRenameInput('') ;}
                     setEditDialogOpen(open);
                 }} open={editDialogOpen}><AlertDialog>
                 <DropdownMenu>
@@ -189,7 +188,8 @@ const TimerView = () => {
                                 unselectTimer();
                             }
                             deleteTimer(currentId);
-                            navigate('/');
+                            navigate('/')
+                            setSecondPage(undefined);
                         }}>Видалити</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -210,6 +210,10 @@ const TimerView = () => {
                             <Button type="submit" onClick={()=>{
                                 setTimers({...timers,[currentId]:{...currentTimer,name:renameInput, totalTime: currentTimer?.totalTime || 0}});
                                 setEditDialogOpen(false);
+                                setSecondPage(
+                                    {name:renameInput || '',url:`/${currentId}`}
+                                )
+                                setRenameInput('');
                             }}>Зберегти значення</Button>
                         </DialogFooter>
                             
@@ -274,7 +278,7 @@ const TimerView = () => {
                             new Date(value).toLocaleDateString()
                         }
                         />
-                        <YAxis />
+                        <YAxis tick={false} />
                         <Tooltip  content={(<CustomTooltip />)}/>
                         <Area
                         type="monotone"
@@ -288,7 +292,7 @@ const TimerView = () => {
                 </Card>
             </div>
             </TabsContent>
-            <TabsContent value="details">
+            <TabsContent value="details" className='w-full'>
                 <DetailsView 
                 currentTimerDate={currentTimerDate} 
                 additionalSeconds={additionalSeconds}/>
@@ -325,7 +329,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     const data = timerDates.map((day) => {
         return {
         name: day.name,
-        hours: round(day.ms / 1000 / 60 / 60, 2),
+        hours: day.ms ,
         };
     });
     const rangeTotal = round(
@@ -336,8 +340,8 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     const rangeMedium = round(rangeTotal / timerDates.length,2);
     
     
-    return (<>
-            <div className="grid grid-cols-3 gap-4 h-full mt-4 ">
+    return (
+            <div className="grid grid-cols-3 gap-4 w-full h-full mt-4 ">
                 <Calendar
                     mode="range"
                     selected={viewRange}
@@ -397,7 +401,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                             new Date(value).toLocaleDateString()
                         }
                         />
-                        <YAxis />
+                        
                         <Tooltip  content={<CustomTooltip/>}/>
                         <Area
                         type="monotone"
@@ -405,12 +409,12 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                         stroke="#8884d8"
                         fill="#8884d8"
                         />
+                        <YAxis tick={false} />
                     </AreaChart>
                     </ResponsiveContainer>
                 </CardContent>
                 </Card>
             </div>
-    </>
     )
 }
 
