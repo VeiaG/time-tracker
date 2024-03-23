@@ -188,7 +188,6 @@ const TimerView = () => {
                             }
                             deleteTimer(currentId);
                             navigate('/')
-                            setSecondPage(undefined);
                         }}>Видалити</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -208,9 +207,6 @@ const TimerView = () => {
                             <Button type="submit" onClick={()=>{
                                 setTimers({...timers,[currentId]:{...currentTimer,name:renameInput, totalTime: currentTimer?.totalTime || 0}});
                                 setEditDialogOpen(false);
-                                setSecondPage(
-                                    {name:renameInput || '',url:`/${currentId}`}
-                                )
                                 setRenameInput('');
                             }}>Зберегти значення</Button>
                         </DialogFooter>
