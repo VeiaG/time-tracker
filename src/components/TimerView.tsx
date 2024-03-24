@@ -336,7 +336,7 @@ const TimerView = () => {
 }
 type DetailsViewProps = {
     currentTimerDate:TimerDates,
-    additionalSeconds:number
+    additionalSeconds:ElapsedTime
 }
 const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     const today = new Date(new Date().setHours(0, 0, 0, 0));

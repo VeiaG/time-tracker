@@ -38,7 +38,7 @@ const SideBar = () => {
                                     }} >
                                     <h2 className=" font-bold text-xl truncate max-w-48 ">{timer.name}</h2>
                                     <p  className=" text-muted-foreground truncate max-w-48">
-                                        Час: {getNumbersBySeconds(timer.totalTime,(isCurrent ? seconds : 0))}
+                                        Час: {getNumbersBySeconds(timer.totalTime,(isCurrent ? seconds : undefined))}
                                     </p>
                                 </div>
                                 <Button size="icon" className="aspect-square "
