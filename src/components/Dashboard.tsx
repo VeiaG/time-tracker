@@ -77,7 +77,7 @@ const Dashboard = () => {
             <CardTitle>
               {getNumbersBySeconds(
                 currentTimerDate[new Date().toDateString()],
-                seconds
+                seconds,new Date().toDateString()
               )}
             </CardTitle>
             <CardDescription>Сьогодні</CardDescription>
@@ -91,7 +91,7 @@ const Dashboard = () => {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{seconds}</CardTitle>
+            <CardTitle>{0}</CardTitle>
             <CardDescription>Тест додаткові секунди</CardDescription>
           </CardHeader>
         </Card>

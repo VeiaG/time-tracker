@@ -63,9 +63,21 @@ import { TimerContext } from '@/contexts/TimerContext';
   
 import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { ElapsedTime } from '@/hooks/useTimer';
 
 const TimerView = () => {
-    const {unselectTimer,timers,selectedTimerID,isPaused,toggleTimer,seconds,setTimers,deleteTimer} = useContext(TimerContext);
+    const {
+        unselectTimer,
+        timers,
+        selectedTimerID,
+        isPaused,
+        toggleTimer,
+        seconds,
+        setTimers,
+        deleteTimer,
+        setIsZenMode,
+        setSelectedTimerID
+    } = useContext(TimerContext);
     
     
     const [currentTimer,setCurrentTimer] = useState<Timer>();
@@ -76,7 +88,7 @@ const TimerView = () => {
     
     const [isCurrentPaused , setIsCurrentPaused] = useState<boolean>(true);
     
-    const [additionalSeconds , setAdditionalSeconds] = useState<number>(seconds);
+    const [additionalSeconds , setAdditionalSeconds] = useState<ElapsedTime>(seconds);
 
     useEffect(() => {
         if(currentId && timers){
@@ -101,7 +113,7 @@ const TimerView = () => {
 
     useEffect(() => {
         if(selectedTimerID !== currentId){
-            setAdditionalSeconds(0);
+            setAdditionalSeconds(undefined);
         }
         else{
             setAdditionalSeconds(seconds);
@@ -233,10 +245,32 @@ const TimerView = () => {
                 <Card>
                 <CardHeader className='items-center h-full justify-center'>
                     {/* <CardTitle>Управління</CardTitle> */}
-                    <Button onClick={()=>toggleTimer(currentId)} 
-                        aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}>
-                        <i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>
-                    </Button>
+                    <div className="flex gap-2 items-center">
+                        <Button onClick={()=>{
+                                if(currentId === selectedTimerID){
+                                    unselectTimer();
+                                    
+                                }
+                                else{
+                                    setSelectedTimerID(currentId)
+                                }
+                            }} 
+                                aria-label="Zen режим" variant='outline' size="sm">
+                                <i className={`fa-regular fa-circle${currentId === selectedTimerID ? '-dot': ''}`}></i>
+                        </Button>
+                        <Button onClick={()=>toggleTimer(currentId)} size="icon"
+                            aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}>
+                            <i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>
+                        </Button>
+                        <Button disabled={!(currentId === selectedTimerID)} onClick={()=>{
+                            if(currentId === selectedTimerID){
+                                setIsZenMode(true);
+                            }
+                        }} 
+                            aria-label="Zen режим" variant='outline' size="sm">
+                            <i className={`fa-solid fa-expand`}></i>
+                        </Button>
+                    </div>
                 </CardHeader>
                 </Card>
                 <Card>

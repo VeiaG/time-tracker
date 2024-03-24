@@ -38,7 +38,6 @@ export type TimerDates = {
 
 import { getStyledStringByTimerObject } from './lib/timeUtils';
 import { Button } from './components/ui/button';
-import { TypographyH1, TypographyH2, TypographyH3, TypographyMuted } from './components/ui/typography';
 
 function App() {
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
@@ -59,7 +58,6 @@ function App() {
           localforage.getItem<TimerDates>(selectedTimerID).then((data) => {
               if(data){
                   setCurrentTimerDate(data);
-                  console.log('setCurrentTimerDate in useEffect',data);
               }
               else{
                   setCurrentTimerDate({});
@@ -69,21 +67,26 @@ function App() {
   },[selectedTimerID,timers,setCurrentTimerDate]);
 
 
-  const timerCallback =async (timeElapsed:number)=>{
-      const newDate = new Date();
+  const timerCallback =async (timeElapsed:[{ day: string; ms: number }])=>{
+      // const newDate = new Date();
 
-      const dateString = newDate.toDateString();
+      // const dateString = newDate.toDateString();
       const newTimerDate = {...currentTimerDate};
-      if(newTimerDate[dateString]){
-          newTimerDate[dateString] += timeElapsed;
-      }
-      else{
-          newTimerDate[dateString] = timeElapsed;
-      }
+      let sumOfTime = 0;
+
+      timeElapsed.forEach((time) => {
+          if(newTimerDate[time.day]){
+              newTimerDate[time.day] += time.ms;
+          }
+          else{
+              newTimerDate[time.day] = time.ms;
+          }
+          sumOfTime += time.ms;
+      });
       const newTimers = {...timers};
 
       if(currentID){
-        newTimers[currentID].totalTime += timeElapsed;
+        newTimers[currentID].totalTime += sumOfTime;
       }
       setCurrentTimerDate(newTimerDate);
       

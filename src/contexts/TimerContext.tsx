@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 import { AllTimers ,Timer,TimerDates} from '../App';
+import { ElapsedTime } from '@/hooks/useTimer';
 
 type TimerContextType = {
     currentTimer:Timer | undefined,
@@ -8,7 +9,7 @@ type TimerContextType = {
     setCurrentTimerDate: (timerDate:TimerDates) => void,
     selectedTimerID: string ,
     setSelectedTimerID: (id:string) => void,
-    seconds: number,
+    seconds: ElapsedTime ,
     addTimer: (name:string) => void,
     deleteTimer: (id:string) => void,
     toggleTimer: (id:string) => void,

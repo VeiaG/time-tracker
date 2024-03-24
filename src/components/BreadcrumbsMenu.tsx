@@ -11,6 +11,7 @@ type BreadcrumbsMenuProps = {
     timers:AllTimers
 }
 import { useLocation } from "react-router-dom"
+import { Fragment } from "react"
 const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);
@@ -26,13 +27,16 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
                     const to = `/${pathnames.slice(0, index + 1).join("/")}`;
                     const pageName = timers[value] ? timers[value].name : value;
                     return (
-                        <>
+                    <Fragment key={index}>
                         <BreadcrumbSeparator />
+                        <BreadcrumbItem  key={index}> 
                             <BreadcrumbLink asChild >
-                                <Link className="truncate max-w-sm" key={index}
+                                <Link className="truncate max-w-sm"
                                     to={to}>{pageName}</Link>
                             </BreadcrumbLink>
-                      </>
+                      </BreadcrumbItem>
+                    </Fragment>
+                        
                     )
                 })}
 

@@ -1,26 +1,54 @@
-import {useState,useMemo, useEffect,useCallback} from 'react';
+import {useState, useEffect,useCallback} from 'react';
 import { useLocalForage } from './useLocalForage';
 
 export type CurrentTimer = {
     start:number | undefined
 }
-
-const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
+export type ElapsedTime =  [{ day: string; ms: number }] | undefined;
+const useTimer = (onStop : (timeElapsed: ElapsedTime)=>Promise<void>)=>{
     const [currentTimer,setCurrentTimer] = useLocalForage<CurrentTimer>('currentTimer',{start:undefined});
 
     const [isPaused,setIsPaused] = useState<boolean>(!currentTimer.start);
     
-    const [elapsedSeconds , setElapsedSeconds] = useState<number>(0);
+    const [seconds , setElapsedSeconds] = useState<ElapsedTime>(undefined);
 
-    const seconds = useMemo(()=>{
-        return elapsedSeconds;
-    },[elapsedSeconds]);
 
+    function getTimeArray(start: number):ElapsedTime {
+        const results = [] as unknown as ElapsedTime;
+        const end = Date.now();
+        const endDay = new Date(end);
+        endDay.setHours(0, 0, 0, 0);
+
+        const currentIterationDay = new Date(start);
+        currentIterationDay.setHours(0, 0, 0, 0);
+    
+        let startIteration = start;
+
+        while(currentIterationDay.getTime() <= endDay.getTime()){
+        
+            const day = currentIterationDay.toDateString();
+    
+            if(currentIterationDay.getTime() === endDay.getTime()){
+                const ms = end - startIteration;
+                
+                results.push({day,ms});
+                break;
+            }
+            currentIterationDay.setDate(currentIterationDay.getDate() + 1);
+            const ms =currentIterationDay.getTime()-startIteration;
+            results.push({day,ms});
+    
+            startIteration = currentIterationDay.getTime();
+        }
+        return results;
+    }
     const updateElapsedSeconds = useCallback(()=>{
-        const newDate = Date.now();
-        const timeElapsed = currentTimer.start ? 
-            Math.floor((newDate - currentTimer.start)/1000) : 0;
-        setElapsedSeconds(timeElapsed);
+        if(currentTimer.start){
+            
+            const timeElapsed =getTimeArray(currentTimer?.start) || undefined ;
+            setElapsedSeconds(timeElapsed);
+            
+        }
     },[currentTimer.start]);
 
     //fire once
@@ -35,7 +63,7 @@ const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
         }
         else{
             clearInterval(interval!);
-            setElapsedSeconds(0);
+            setElapsedSeconds(undefined);
         }
         return () => clearInterval(interval);
     },[isPaused,updateElapsedSeconds]);
@@ -48,18 +76,23 @@ const useTimer = (onStop : (timeElapsed: number)=>Promise<void>)=>{
         const newDate = Date.now();
         setCurrentTimer({start:newDate});
     }
+    
     const stopTimer = async()=>{
         
         
-        const newDate = Date.now();
+        // const newDate = Date.now();
 
-        const timeElapsed = currentTimer.start ? newDate - currentTimer.start : 0;
+
+        // const timeElapsed = currentTimer.start ? newDate - currentTimer.start : 0;
+        // set time elapsed to array of days and ms for each day from currentTimer.start to newDate
+        const timeElapsed = getTimeArray(currentTimer.start);
+        
 
         setCurrentTimer({start:undefined});
         
         
         await onStop(timeElapsed);
-        setElapsedSeconds(0);
+        setElapsedSeconds(undefined);
         
     }
     return [startTimer,stopTimer,isPaused,seconds] as const;
