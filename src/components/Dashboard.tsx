@@ -47,15 +47,11 @@ const Dashboard = () => {
     );
     setSevenDaysObj(sevenDaysObj);
   }, [currentTimerDate, seconds]);
-  const data = sevenDaysObj.map((day) => {
-    return {
-      name: day.name,
-      hours: day.ms,
-    };
-  });
+
   const sevenDaysSeconds = sevenDaysObj.reduce((acc, cur) => {
     return acc + cur.ms;
   }, 0);
+  
 
   const renderDashboard = (
     <>
@@ -104,7 +100,7 @@ const Dashboard = () => {
               <AreaChart
                 width={400}
                 height={300}
-                data={data}
+                data={sevenDaysObj}
                 margin={{
                   top: 10,
                   right: 30,
@@ -123,8 +119,9 @@ const Dashboard = () => {
                 <Tooltip formatter={(value) => [value + " год.", "Час"]} 
                 content={<CustomTooltip/>}/>
                 <Area
+                  animationDuration={200} 
                   type="monotone"
-                  dataKey="hours"
+                  dataKey="ms"
                   stroke="#8884d8"
                   fill="#8884d8"
                 />

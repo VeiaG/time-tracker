@@ -188,7 +188,7 @@ function App() {
               <div className='flex flex-col items-center justify-center gap-2'>
                 <div className='flex gap-2 items-center font-semibold text-4xl'>
                   <i className="fa-regular fa-clock"></i>
-                  <span className="truncate max-w-sm">
+                  <span className="truncate max-w-4xl">
                     {currentTimer?.name || 'Щось пішло не так...' }
                   </span>
                 </div >

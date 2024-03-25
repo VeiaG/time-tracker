@@ -88,7 +88,7 @@ const TimerView = () => {
     
     const [isCurrentPaused , setIsCurrentPaused] = useState<boolean>(true);
     
-    const [additionalSeconds , setAdditionalSeconds] = useState<ElapsedTime>(seconds);
+    // const [additionalSeconds , setAdditionalSeconds] = useState<ElapsedTime>(seconds);
 
     useEffect(() => {
         if(currentId && timers){
@@ -111,14 +111,15 @@ const TimerView = () => {
         }
     },[id,currentId]);
 
-    useEffect(() => {
-        if(selectedTimerID !== currentId){
-            setAdditionalSeconds(undefined);
-        }
-        else{
-            setAdditionalSeconds(seconds);
-        }
-    },[currentId,selectedTimerID,seconds]);
+    const additionalSeconds =  selectedTimerID !== currentId ? undefined : seconds;
+    // useEffect(() => {
+    //     if(selectedTimerID !== currentId){
+    //         setAdditionalSeconds(undefined);
+    //     }
+    //     else{
+    //         setAdditionalSeconds(seconds);
+    //     }
+    // },[currentId,selectedTimerID,seconds]);
 
     useEffect(()=>{
         if(currentId === selectedTimerID){
@@ -132,12 +133,6 @@ const TimerView = () => {
     
     const allDates = getTimerDatesAll(currentTimerDate,additionalSeconds);
     
-    const allDatesData = allDates.map((day) => {
-        return {
-        name: day.name,
-        hours: day.ms,
-        };
-    });
 
     const allDatesMedium = round(
         (allDates.reduce((acc, cur) => {
@@ -291,7 +286,7 @@ const TimerView = () => {
                     <AreaChart
                         width={400}
                         height={300}
-                        data={allDatesData}
+                        data={allDates}
                         margin={{
                         top: 10,
                         right: 30,
@@ -309,8 +304,9 @@ const TimerView = () => {
                         <YAxis tick={false} />
                         <Tooltip  content={(<CustomTooltip />)}/>
                         <Area
+                        animationDuration={200} 
                         type="monotone"
-                        dataKey="hours"
+                        dataKey="ms"
                         stroke="#8884d8"
                         fill="#8884d8"
                         />
@@ -354,12 +350,6 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     const timerDates = 
         getTimerDatesByRange(startDate,endDate,currentTimerDate,additionalSeconds);
     
-    const data = timerDates.map((day) => {
-        return {
-        name: day.name,
-        hours: day.ms ,
-        };
-    });
     const rangeTotal = round(
         (timerDates.reduce((acc, cur) => {
             return acc + cur.ms;
@@ -405,7 +395,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                 </CardHeader>
                 </Card>
                 
-                <Card className="col-span-3 ">
+                <Card className="col-span-3 mb-8">
                 <CardHeader>
                     <CardDescription>Активність в цей період</CardDescription>
                 </CardHeader>
@@ -414,7 +404,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                     <AreaChart
                         width={400}
                         height={300}
-                        data={data}
+                        data={timerDates}
                         margin={{
                         top: 10,
                         right: 30,
@@ -432,8 +422,9 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                         
                         <Tooltip  content={<CustomTooltip/>}/>
                         <Area
+                        animationDuration={200} 
                         type="monotone"
-                        dataKey="hours"
+                        dataKey="ms"
                         stroke="#8884d8"
                         fill="#8884d8"
                         />

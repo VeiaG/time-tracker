@@ -1,5 +1,6 @@
 import {useState, useEffect,useCallback} from 'react';
 import { useLocalForage } from './useLocalForage';
+import { flushSync } from 'react-dom';
 
 export type CurrentTimer = {
     start:number | undefined
@@ -90,9 +91,11 @@ const useTimer = (onStop : (timeElapsed: ElapsedTime)=>Promise<void>)=>{
 
         setCurrentTimer({start:undefined});
         
+        flushSync(async ()=>{
+            onStop(timeElapsed);
+            setElapsedSeconds(undefined);
+        })
         
-        await onStop(timeElapsed);
-        setElapsedSeconds(undefined);
         
     }
     return [startTimer,stopTimer,isPaused,seconds] as const;
