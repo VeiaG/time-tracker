@@ -1,33 +1,26 @@
-import { ReactElement, useContext, useState } from 'react';
+import {  useContext, useState } from 'react';
 import {Timer,TimerDates,} from '../App';
 import localforage from 'localforage';
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TypographyH1, TypographyLead, TypographyMuted } from "./ui/typography";
+import { TypographyH1, TypographyLead } from "./ui/typography";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
+
     DropdownMenuTrigger,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem
+
   } from "@/components/ui/dropdown-menu"
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
+
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
@@ -75,14 +68,13 @@ const TimerView = () => {
         seconds,
         setTimers,
         deleteTimer,
-        setIsZenMode,
-        setSelectedTimerID
+        setIsZenMode
     } = useContext(TimerContext);
-    
-    
-    const [currentTimer,setCurrentTimer] = useState<Timer>();
     const params = useParams();
     const id = params?.id as string;
+    
+    const [currentTimer,setCurrentTimer] = useState<Timer>(timers[id] || undefined);
+    
     const [currentId,setCurrentId] = useState<string>(id);
     const [currentTimerDate,setCurrentTimerDate] = useState<TimerDates>({});
     
@@ -92,7 +84,7 @@ const TimerView = () => {
 
     useEffect(() => {
         if(currentId && timers){
-            setCurrentId(currentId);
+            // setCurrentId(currentId);
             setCurrentTimer(timers[currentId]);
             localforage.getItem<TimerDates>(currentId).then((data) => {
                 if(data){
@@ -148,8 +140,7 @@ const TimerView = () => {
     
    
 
-    return (
-
+    return currentTimer ? (
         <div className="flex flex-col gap-4 items-start ">
             <div className="flex items-center justify-between w-full relative" >
                 <TypographyH1 className="w-full flex justify-center items-center">
@@ -228,93 +219,92 @@ const TimerView = () => {
                 <TabsTrigger value="details">Детальніше</TabsTrigger>
             </TabsList>
             <TabsContent value="main" className='w-full'>
-            <div className="grid grid-cols-3 gap-4 h-full mt-4 ">
-                <Card>
-                <CardHeader>
-                    <CardTitle>
-                    {getNumbersBySeconds(currentTimer?.totalTime, additionalSeconds)}
-                    </CardTitle>
-                    <CardDescription>Часу витрачено</CardDescription>
-                </CardHeader>
-                </Card>
-                <Card>
-                <CardHeader className='items-center h-full justify-center'>
-                    {/* <CardTitle>Управління</CardTitle> */}
-                    <div className="flex gap-2 items-center">
-                        <Button onClick={()=>{
+                <div className="grid grid-cols-3 gap-4 h-full mt-4 ">
+                    <Card>
+                    <CardHeader>
+                        <CardTitle>
+                        {getNumbersBySeconds(currentTimer?.totalTime, additionalSeconds)}
+                        </CardTitle>
+                        <CardDescription>Часу витрачено</CardDescription>
+                    </CardHeader>
+                    </Card>
+                    <Card>
+                    <CardHeader className='items-center h-full justify-center'>
+                        {/* <CardTitle>Управління</CardTitle> */}
+                        <div className="flex gap-2 items-center">
+                            <Button onClick={()=>{
+                                    if(currentId === selectedTimerID){
+                                        unselectTimer();
+                                    }
+                                    else{
+                                        unselectTimer(currentId);
+                                    }
+                                }} 
+                                    aria-label="Zen режим" variant='outline' size="sm">
+                                    <i className={`fa-regular fa-circle${currentId === selectedTimerID ? '-dot': ''}`}></i>
+                            </Button>
+                            <Button onClick={()=>toggleTimer(currentId)} size="icon"
+                                aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}>
+                                <i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>
+                            </Button>
+                            <Button disabled={!(currentId === selectedTimerID)} onClick={()=>{
                                 if(currentId === selectedTimerID){
-                                    unselectTimer();
-                                    
-                                }
-                                else{
-                                    setSelectedTimerID(currentId)
+                                    setIsZenMode(true);
                                 }
                             }} 
                                 aria-label="Zen режим" variant='outline' size="sm">
-                                <i className={`fa-regular fa-circle${currentId === selectedTimerID ? '-dot': ''}`}></i>
-                        </Button>
-                        <Button onClick={()=>toggleTimer(currentId)} size="icon"
-                            aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}>
-                            <i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>
-                        </Button>
-                        <Button disabled={!(currentId === selectedTimerID)} onClick={()=>{
-                            if(currentId === selectedTimerID){
-                                setIsZenMode(true);
+                                <i className={`fa-solid fa-expand`}></i>
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    </Card>
+                    <Card>
+                    <CardHeader>
+                        <CardTitle>
+                        {getNumbersBySeconds(allDatesMedium)}
+                        </CardTitle>
+                        <CardDescription>В середньому на день</CardDescription>
+                    </CardHeader>
+                    </Card>
+                    
+                    <Card className="col-span-3 ">
+                    <CardHeader>
+                        <CardDescription>Загальна активність</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={356}>
+                        <AreaChart
+                            width={400}
+                            height={300}
+                            data={allDates}
+                            margin={{
+                            top: 10,
+                            right: 30,
+                            left: 0,
+                            bottom: 0,
+                            }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                            dataKey="name"
+                            tickFormatter={(value) =>
+                                new Date(value).toLocaleDateString()
                             }
-                        }} 
-                            aria-label="Zen режим" variant='outline' size="sm">
-                            <i className={`fa-solid fa-expand`}></i>
-                        </Button>
-                    </div>
-                </CardHeader>
-                </Card>
-                <Card>
-                <CardHeader>
-                    <CardTitle>
-                    {getNumbersBySeconds(allDatesMedium)}
-                    </CardTitle>
-                    <CardDescription>В середньому на день</CardDescription>
-                </CardHeader>
-                </Card>
-                
-                <Card className="col-span-3 ">
-                <CardHeader>
-                    <CardDescription>Загальна активність</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ResponsiveContainer width="100%" height={356}>
-                    <AreaChart
-                        width={400}
-                        height={300}
-                        data={allDates}
-                        margin={{
-                        top: 10,
-                        right: 30,
-                        left: 0,
-                        bottom: 0,
-                        }}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis
-                        dataKey="name"
-                        tickFormatter={(value) =>
-                            new Date(value).toLocaleDateString()
-                        }
-                        />
-                        <YAxis tick={false} />
-                        <Tooltip  content={(<CustomTooltip />)}/>
-                        <Area
-                        animationDuration={200} 
-                        type="monotone"
-                        dataKey="ms"
-                        stroke="#8884d8"
-                        fill="#8884d8"
-                        />
-                    </AreaChart>
-                    </ResponsiveContainer>
-                </CardContent>
-                </Card>
-            </div>
+                            />
+                            <YAxis tick={false} />
+                            <Tooltip  content={(<CustomTooltip />)}/>
+                            <Area
+                            animationDuration={200} 
+                            type="monotone"
+                            dataKey="ms"
+                            stroke="#8884d8"
+                            fill="#8884d8"
+                            />
+                        </AreaChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                    </Card>
+                </div>
             </TabsContent>
             <TabsContent value="details" className='w-full'>
                 <DetailsView 
@@ -322,12 +312,13 @@ const TimerView = () => {
                 additionalSeconds={additionalSeconds}/>
             </TabsContent>
             </Tabs>
-            
-            
-
-            
-            
         </div>
+    ) : (
+        <div className="flex flex-col gap-4 items-center justify-center min-h-32 w-full">
+            <TypographyLead>Таймер не знайдено...</TypographyLead>
+            <Link to="/">Повернутися на головну</Link>
+        </div>
+    
     )
 }
 type DetailsViewProps = {

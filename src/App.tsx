@@ -2,7 +2,7 @@ import {useState,useEffect} from 'react';
 import Sidebar from './components/Sidebar'
 import TimerView from './components/TimerView'
 import Content from './components/Content';
-import { HashRouter, Routes,Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter, Routes,Route } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Navigation from './components/Navigation';
 import { useLocalForage } from './hooks/useLocalForage';
@@ -19,11 +19,7 @@ import BreadcrumbsMenu from './components/BreadcrumbsMenu';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+
 } from "@/components/ui/dialog"
 export type AllTimers ={
   [id:string]:Timer,
@@ -50,7 +46,7 @@ function App() {
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
   const [isZenMode,setIsZenMode] = useLocalForage<boolean>('zenmode',false);
-
+  
   useEffect(() => {
       if(selectedTimerID && timers){
           setCurrentID(selectedTimerID);
@@ -99,11 +95,15 @@ function App() {
     }
   const [startTimer,stopTimer,isPaused,seconds] = useTimer(timerCallback);
 
-  const unselectTimer = () => {
-    stopTimer();
-    setCurrentTimer(undefined);
-    setCurrentTimerDate({});
-    setSelectedTimerID('');
+  const unselectTimer = async (id?:string ) => {
+    if(!isPaused){
+      await stopTimer();
+    }
+    if(!id){
+      setCurrentTimer(undefined);
+      setCurrentTimerDate({});
+    }
+    setSelectedTimerID(id || '');
   }
 
   const toggleTimer = (id:string) => {
@@ -152,7 +152,7 @@ function App() {
   
   
   return (
-      <div className="min-h-dvh h-dvh max-h-dvh pt-24 relative box-border">
+      <div className="min-h-dvh h-dvh max-h-dvh relative box-border  pt-24 ">
         <div className=" lg:hidden
           flex items-center justify-center top-0 left-0 fixed w-full h-dvh bg-black z-50">
           Сайт не оптимізовано для таких розмірів екрану
@@ -180,8 +180,9 @@ function App() {
           }
         
        }>
-       <ScrollArea className="h-full max-h-full min-h-full relative box-border">
+       
        <ThemeProvider>
+       <ScrollArea className="h-full max-h-full min-h-full relative box-border">
         <Toaster />
           <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
             <DialogContent className='h-screen max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
@@ -208,13 +209,10 @@ function App() {
             </DialogContent>
           </Dialog>
         <HashRouter>
-          
           <Navigation />
-          
-          <div className="container flex flex-col gap-2 relative h-full box-border">
+          <div className="container flex flex-col relative max-h-full h-full box-border  ">
             <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative grow">
-          
           <Routes>
               <Route path="/about" element={<AboutPage />} />
               <Route path="/:id" element={
@@ -236,8 +234,9 @@ function App() {
           </div>
           </div>
         </HashRouter>
+        </ScrollArea>
         </ThemeProvider>
-       </ScrollArea>
+       
        </TimerContext.Provider>
       </div>
   )

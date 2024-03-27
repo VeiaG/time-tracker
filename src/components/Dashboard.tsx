@@ -1,5 +1,5 @@
-import { Timer, TimerDates } from "../App";
-import { getNumbersBySeconds, getTimerDatesByRange ,round } from "@/lib/timeUtils";
+
+import { getNumbersBySeconds, getTimerDatesByRange  } from "@/lib/timeUtils";
 import { useContext, useEffect, useState } from "react";
 import CustomTooltip from "./CustomTooltip";
 import {
@@ -18,9 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TypographyH1, TypographyLead, TypographyMuted } from "./ui/typography";
+import { TypographyH1, TypographyMuted } from "./ui/typography";
 import { TimerContext } from "@/contexts/TimerContext";
-
+import EmptyDashboard from "./EmptyDashboard";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
 
@@ -52,11 +53,11 @@ const Dashboard = () => {
     return acc + cur.ms;
   }, 0);
   
-
+  const navigate = useNavigate();
   const renderDashboard = (
     <>
-      <TypographyH1>
-        <div className="truncate max-w-3xl h-16 ">{currentTimer?.name}</div>
+      <TypographyH1 className="truncate max-w-3xl h-16">
+        {currentTimer?.name}
       </TypographyH1>
       <TypographyMuted>Обраний таймер</TypographyMuted>
       <div className="grid grid-cols-4 gap-4 h-full mt-4">
@@ -85,10 +86,14 @@ const Dashboard = () => {
             <CardDescription>За останній тиждень</CardDescription>
           </CardHeader>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{0}</CardTitle>
-            <CardDescription>Тест додаткові секунди</CardDescription>
+        <Card onClick={()=>{
+            if(selectedTimerID!=='')
+              navigate(`/${selectedTimerID}`)
+          }} className="relative cursor-pointer hover:bg-accent transition-colors">
+          <CardHeader className="relative">
+            <CardTitle>Детальніше</CardTitle>
+            <i className="fa-solid fa-arrow-right absolute bottom-4 right-4 "></i>
+            <CardDescription>Більше інформації</CardDescription>
           </CardHeader>
         </Card>
         <Card className="col-span-4 ">
@@ -138,7 +143,7 @@ const Dashboard = () => {
       {selectedTimerID ? (
         renderDashboard
       ) : (
-        <TypographyLead>Оберіть таймер</TypographyLead>
+        <EmptyDashboard/>
       )}
     </div>
   );

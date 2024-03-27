@@ -72,9 +72,9 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="py-4 border-b fixed top-0 left-0 w-full z-10 backdrop-blur-sm ">
+    <nav className="py-4 border-b fixed top-0 left-0 w-full z-10">
       <div className="container flex gap-2">
-      <h2 className="mr-auto mt-10 scroll-m-20  text-3xl font-semibold tracking-tight transition-colors first:mt-0 ">
+        <h2 className="mr-auto mt-10 scroll-m-20  text-3xl font-semibold tracking-tight transition-colors first:mt-0 ">
             TimerApp
           </h2>
         <NavigationMenu>
@@ -150,31 +150,16 @@ const AvatarMenu = ()=>{
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        {/* <Avatar>
+          <AvatarImage />
+          <AvatarFallback>VG</AvatarFallback>
+        </Avatar> */}
+        <Button variant="outline" size="icon">
+          <i className="fa-solid fa-bars"></i>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Мій профіль</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            
-            <span>Профіль</span>
-            
-          </DropdownMenuItem>
-        
-          <DropdownMenuItem>
-            
-            <span>Налаштування</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            
-            <span>Сполучення клавіш</span>
-            <DropdownMenuShortcut>CTRL+K</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
+        <DropdownMenuLabel>Меню</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuSub>
@@ -202,14 +187,18 @@ const AvatarMenu = ()=>{
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem>
           
-          <span>Вийти</span>
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
+          <DropdownMenuItem>
+            <span>Сполучення клавіш</span>
+            <DropdownMenuShortcut>CTRL+K</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <span>Налаштування</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        
+        
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -236,7 +225,7 @@ const TimerNameMenu = ()=>{
           </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-full">
-      <DropdownMenuLabel>{currentTimer?.name}</DropdownMenuLabel>
+      <DropdownMenuLabel className="truncate max-w-sm">{currentTimer?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={()=>{
@@ -246,8 +235,7 @@ const TimerNameMenu = ()=>{
             <span>Детальніше</span>
             
           </DropdownMenuItem>
-        
-          <DropdownMenuItem onClick={unselectTimer}>
+          <DropdownMenuItem onClick={()=>unselectTimer()}>
             
             <span className=" text-red-800 dark:text-red-400">Зняти вибір</span>
           </DropdownMenuItem>
@@ -255,22 +243,22 @@ const TimerNameMenu = ()=>{
       </DropdownMenuContent>
     </DropdownMenu>
     <Button size="icon" className="rounded-none"
-                    onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
-                    disabled={!selectedTimerID}
-                  >
-                    {
-                      <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
-                    }
-                  </Button>
-                  <Button size="icon"
-                    onClick={() => {
-                      setIsZenMode(true);
-                    }} 
-                    variant="outline"
-                    disabled={!selectedTimerID}
-                    className="rounded-l-none">
-                    <i className="fa-solid fa-expand"></i>
-                  </Button>
+      onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
+      disabled={!selectedTimerID}
+    >
+      {
+        <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
+      }
+    </Button>
+    <Button size="icon"
+      onClick={() => {
+        setIsZenMode(true);
+      }} 
+      variant="outline"
+      disabled={!selectedTimerID}
+      className="rounded-l-none">
+      <i className="fa-solid fa-expand"></i>
+    </Button>
     </NavigationMenuItem>
   )
 }

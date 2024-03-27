@@ -143,6 +143,7 @@ const getTimerDatesAll = (currentTimerDate:TimerDates,seconds?:ElapsedTime) => {
     const firstDate = new Date(objKeys[0]);
     return getTimerDatesByRange(firstDate,new Date(),currentTimerDate,seconds || undefined);
 }
+
 const round = (num: number, decimals: number) => {
     return Number(
       Math.round(parseFloat(num + "e" + decimals)) + "e-" + decimals

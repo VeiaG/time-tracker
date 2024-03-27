@@ -20,8 +20,9 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
             <BreadcrumbList>
                 <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                        <Link to="/">Головна</Link>
+                        <Link to="/"><i className="fa-solid fa-house text-lg"></i></Link>
                     </BreadcrumbLink>
+                    
                 </BreadcrumbItem>
                 {pathnames.map((value, index) => {
                     const to = `/${pathnames.slice(0, index + 1).join("/")}`;

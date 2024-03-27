@@ -13,7 +13,7 @@ type TimerContextType = {
     addTimer: (name:string) => void,
     deleteTimer: (id:string) => void,
     toggleTimer: (id:string) => void,
-    unselectTimer: () => void,
+    unselectTimer: (id?:string) => void,
     isPaused: boolean,
     timers: AllTimers,
     setTimers: (timers:AllTimers) => void,
