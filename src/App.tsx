@@ -140,6 +140,7 @@ function App() {
     }
   }
   const addTimer = (timerName:string) => {
+    console.log("ADD TIMER",timerName)
     const id = crypto.randomUUID();
     const newTimer:Timer = {
       name:timerName,
@@ -165,7 +166,7 @@ function App() {
   
   
   return (
-      <div className="min-h-dvh h-dvh max-h-dvh relative box-border  pt-24 ">
+      <div className="min-h-dvh h-dvh max-h-dvh relative box-border   ">
         {/* <div className=" lg:hidden
           flex items-center justify-center top-0 left-0 fixed w-full h-dvh bg-black z-50">
           Сайт не оптимізовано для таких розмірів екрану
@@ -204,7 +205,7 @@ function App() {
        }>
        
        <ThemeProvider>
-       <ScrollArea className="h-full max-h-full min-h-full relative box-border">
+       <ScrollArea className="h-full max-h-full min-h-full relative box-border ">
         <Toaster />
           <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
             <DialogContent className='h-screen max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
@@ -232,9 +233,9 @@ function App() {
           </Dialog>
           <TutorialDialog open={isTutorialOpened} onOpenChange={setIsTutorialOpened}/>
 
-        <HashRouter>
+        <HashRouter> 
           <Navigation />
-          <div className="container flex flex-col relative max-h-full h-full box-border  ">
+          <div className="container flex flex-col relative max-h-full h-full box-border pt-24">
             <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative grow">
           <Routes>

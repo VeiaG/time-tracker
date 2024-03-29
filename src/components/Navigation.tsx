@@ -81,7 +81,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="py-4 border-b fixed top-0 left-0 w-full z-20">
+    <nav className="py-4 border-b fixed top-0 left-0 w-full z-50 backdrop-blur-sm">
       <div className="container flex gap-2 lg:justify-normal justify-between items-center">
         <Button variant="secondary" className="lg:hidden" size="icon" onClick={()=>{
             setIsSidebarOpened(!isSidebarOpened);
@@ -95,7 +95,7 @@ const Navigation = () => {
         </h2>
         <NavigationMenu className=" lg:flex">
           <NavigationMenuList>
-            <Popover open={isOpen} onOpenChange={setOpen}>
+            <Popover open={isOpen} onOpenChange={setOpen} modal>
               <PopoverTrigger asChild>
                 <Button variant="outline" >
                   <span className="hidden h-10 w-10 lg:block lg:h-auto lg:w-auto">

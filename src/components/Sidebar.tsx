@@ -49,7 +49,7 @@ const SideBar = () => {
   return (
     <div className={
         cn(`lg:transform-none lg:sticky fixed left-0 w-full duration-300 transition-[transform,opacity] lg:w-64 flex flex-col 
-        gap-3 h-full top-24 px-8 lg:px-0 lg:top-0 max-h-full box-border pb-8 shrink-0  bg-background z-10
+        gap-3 h-full top-0 pt-24 px-8 lg:px-0 lg:pt-0 lg:top-20  max-h-full box-border pb-8 shrink-0  bg-background z-10
         lg:opacity-100 `,
         isSidebarOpened ? "translate-x-0 opacity-1" : "-translate-x-full opacity-0 ")
     }>
