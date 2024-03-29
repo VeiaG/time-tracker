@@ -3,7 +3,9 @@
 @tailwind utilities;
  
 
-
+*{
+  /* outline:1px solid crimson; */
+}
 
 @layer base {
   :root {

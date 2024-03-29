@@ -2,7 +2,7 @@ import { useNavigate,  } from "react-router-dom"
 import { TypographyH3 } from "./ui/typography";
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-
+import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Fragment, useContext } from "react";
@@ -10,9 +10,14 @@ import { TimerContext } from "@/contexts/TimerContext";
 import {useDebounce} from '@react-hook/debounce'
 import { getNumbersBySeconds } from "@/lib/timeUtils";
 import { Separator } from "@/components/ui/separator"
+import { MobileContext } from "@/contexts/MobileContext";
 
 const SideBar = () => {
     const {timers,selectedTimerID,isPaused,seconds,toggleTimer} = useContext(TimerContext);
+    const {
+        isSidebarOpened,
+        setIsSidebarOpened,
+    } = useContext(MobileContext);
     const [searchInput, setSearchInput] = useDebounce('');
 
     const navigate = useNavigate();
@@ -40,8 +45,14 @@ const SideBar = () => {
             </Fragment>
         )
     });
+
   return (
-    <div className=" w-64 flex flex-col gap-3 h-full sticky top-0 max-h-full box-border pb-8 shrink-0   ">
+    <div className={
+        cn(`lg:transform-none lg:sticky fixed left-0 w-full duration-300 transition-[transform,opacity] lg:w-64 flex flex-col 
+        gap-3 h-full top-24 px-8 lg:px-0 lg:top-0 max-h-full box-border pb-8 shrink-0  bg-background z-10
+        lg:opacity-100 `,
+        isSidebarOpened ? "translate-x-0 opacity-1" : "-translate-x-full opacity-0 ")
+    }>
         
         
         <TypographyH3>Усі таймери:</TypographyH3>

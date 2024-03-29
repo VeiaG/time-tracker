@@ -47,10 +47,19 @@ import { useTheme } from "./themeProvider";
 import { TypographyMuted } from "./ui/typography";
 
 import { TimerContext } from "@/contexts/TimerContext";
+import { MobileContext } from "@/contexts/MobileContext";
 const Navigation = () => {
   const {
     addTimer,
   } = useContext(TimerContext);
+
+  const {
+    isSidebarOpened,
+    setIsSidebarOpened,
+    isMenuOpened,
+    setIsMenuOpened,
+  } = useContext(MobileContext);
+
   const [isOpen, setOpen] = useState(false);
 
   const onClose = () => setOpen(false);
@@ -72,16 +81,28 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="py-4 border-b fixed top-0 left-0 w-full z-10">
-      <div className="container flex gap-2">
-        <h2 className="mr-auto mt-10 scroll-m-20  text-3xl font-semibold tracking-tight transition-colors first:mt-0 ">
-            TimerApp
-          </h2>
-        <NavigationMenu>
+    <nav className="py-4 border-b fixed top-0 left-0 w-full z-20">
+      <div className="container flex gap-2 lg:justify-normal justify-between items-center">
+        <Button variant="secondary" className="lg:hidden" size="icon" onClick={()=>{
+            setIsSidebarOpened(!isSidebarOpened);
+        }}>
+          <i className="fa-solid fa-bars"></i>
+        </Button>
+        <h2 className="lg:mr-auto  text-3xl font-semibold tracking-tight transition-colors ">
+            <Link to="/">
+              TimeTracker    
+            </Link>
+        </h2>
+        <NavigationMenu className=" lg:flex">
           <NavigationMenuList>
             <Popover open={isOpen} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline">Створити таймер</Button>
+                <Button variant="outline" >
+                  <span className="hidden h-10 w-10 lg:block lg:h-auto lg:w-auto">
+                  Створити таймер
+                  </span>
+                  <i className="fa-solid fa-plus lg:hidden"></i>
+                </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80">
                 <div className="grid gap-4">
@@ -150,10 +171,6 @@ const AvatarMenu = ()=>{
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {/* <Avatar>
-          <AvatarImage />
-          <AvatarFallback>VG</AvatarFallback>
-        </Avatar> */}
         <Button variant="outline" size="icon">
           <i className="fa-solid fa-bars"></i>
         </Button>
@@ -196,9 +213,7 @@ const AvatarMenu = ()=>{
           <DropdownMenuItem>
             <span>Налаштування</span>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-        
-        
+        </DropdownMenuGroup> 
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -214,7 +229,7 @@ const TimerNameMenu = ()=>{
     <DropdownMenu >
       <DropdownMenuTrigger asChild>
           <Button  
-          className="rounded-r-none"
+          className="rounded-r-none hidden lg:flex"
           variant="outline"
           disabled={!selectedTimerID}
           >
@@ -242,7 +257,7 @@ const TimerNameMenu = ()=>{
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-    <Button size="icon" className="rounded-none"
+    <Button size="icon" className="rounded-none  hidden lg:flex"
       onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
       disabled={!selectedTimerID}
     >
@@ -256,7 +271,7 @@ const TimerNameMenu = ()=>{
       }} 
       variant="outline"
       disabled={!selectedTimerID}
-      className="rounded-l-none">
+      className="lg:rounded-l-none">
       <i className="fa-solid fa-expand"></i>
     </Button>
     </NavigationMenuItem>

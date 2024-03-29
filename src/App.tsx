@@ -12,7 +12,7 @@ import { ThemeProvider } from "@/components/themeProvider"
 import localforage from 'localforage';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AboutPage from './components/AboutPage';
-
+import { Card, CardContent , CardHeader,CardDescription ,CardTitle} from "@/components/ui/card"
 
 import { TimerContext } from './contexts/TimerContext';
 import BreadcrumbsMenu from './components/BreadcrumbsMenu';
@@ -34,6 +34,15 @@ export type TimerDates = {
 
 import { getStyledStringByTimerObject } from './lib/timeUtils';
 import { Button } from './components/ui/button';
+import { MobileContext } from './contexts/MobileContext';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+
 
 function App() {
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
@@ -46,6 +55,12 @@ function App() {
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
   const [isZenMode,setIsZenMode] = useLocalForage<boolean>('zenmode',false);
+
+  const [isTutorialOpened,setIsTutorialOpened] = useState(false);
+
+
+  const [isSidebarOpened,setIsSidebarOpened] = useState(false);
+  const [isMenuOpened,setIsMenuOpened] = useState(false);
   
   useEffect(() => {
       if(selectedTimerID && timers){
@@ -124,8 +139,6 @@ function App() {
       }
     }
   }
-      
-
   const addTimer = (timerName:string) => {
     const id = crypto.randomUUID();
     const newTimer:Timer = {
@@ -153,10 +166,18 @@ function App() {
   
   return (
       <div className="min-h-dvh h-dvh max-h-dvh relative box-border  pt-24 ">
-        <div className=" lg:hidden
+        {/* <div className=" lg:hidden
           flex items-center justify-center top-0 left-0 fixed w-full h-dvh bg-black z-50">
           Сайт не оптимізовано для таких розмірів екрану
-        </div>
+        </div> */}
+        <MobileContext.Provider value={
+          {
+            isSidebarOpened,
+            setIsSidebarOpened,
+            isMenuOpened,
+            setIsMenuOpened,
+          }
+        }>
        <TimerContext.Provider value={
           {
             currentTimer,
@@ -177,6 +198,7 @@ function App() {
             setCurrentID,
             isZenMode,
             setIsZenMode,
+            setIsTutorialOpened,
           }
         
        }>
@@ -208,6 +230,8 @@ function App() {
                
             </DialogContent>
           </Dialog>
+          <TutorialDialog open={isTutorialOpened} onOpenChange={setIsTutorialOpened}/>
+
         <HashRouter>
           <Navigation />
           <div className="container flex flex-col relative max-h-full h-full box-border  ">
@@ -238,7 +262,79 @@ function App() {
         </ThemeProvider>
        
        </TimerContext.Provider>
+       </MobileContext.Provider>
       </div>
+  )
+}
+
+type TutorialDialogProps = {
+  open:boolean,
+  onOpenChange: (open:boolean) => void,
+}
+const TutorialDialog = ({open,onOpenChange}:TutorialDialogProps)=>{
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <Carousel>
+          <CarouselContent>
+          <CarouselItem >
+              <Card className='h-full'>
+                  <CardHeader>
+                    <CardTitle>
+                      Привіт!
+                    </CardTitle>
+                    
+                    <CardDescription>
+                      <p>Це туторіал по роботі з таймерами</p>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2 flex-col items-center">
+                      <span>
+                        Цей додаток створений для відстеження часу, який ви витрачаєте на різні завдання.
+                      </span>
+                      <span>
+                        
+                      </span>
+                    
+                    </div>
+                  </CardContent>
+                </Card>
+            </CarouselItem>
+            <CarouselItem>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      Привіт!
+                    </CardTitle>
+                    
+                    <CardDescription>
+                      <p>Це туторіал по роботі з таймерами</p>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2 flex-col items-center">
+                      <span>
+                        Цей додаток створений для відстеження часу, який ви витрачаєте на різні завдання.
+                      </span>
+                      <span>
+                        Для початку вам потрібно створити таймер. Зробити це можна натиснувши на кнопку.
+                      </span>
+                      <Button variant='outline'>
+                        Створити таймер
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+            </CarouselItem>
+           
+            <CarouselItem>...</CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      </DialogContent>
+    </Dialog>
   )
 }
 

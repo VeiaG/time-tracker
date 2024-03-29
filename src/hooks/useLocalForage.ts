@@ -2,12 +2,11 @@ import localforage from "localforage";
 import { useEffect, useState} from "react";
 
 export const useLocalForage = <T>(key: string,initialState:T) => {
-    //memoize values
-    // console.log('useLocalForage:',key);
+
     const [state,setState] = useState<T>(initialState);
     useEffect(() => {
         localforage.getItem<T>(key).then((data) => {
-            if(data){
+            if(data !== null && data !== undefined){
                 setState(data);
             }
         });

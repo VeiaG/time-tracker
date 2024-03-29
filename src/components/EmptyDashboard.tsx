@@ -16,9 +16,10 @@ import { getNumbersBySeconds } from "@/lib/timeUtils";
 import { useContext } from "react";
 import { TimerContext } from "@/contexts/TimerContext";
 import {  useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
 const EmptyDashboard = () => {
   const {
-    timers
+    timers,setIsTutorialOpened
   } = useContext(TimerContext);
 
   const sumOfALlTimers = timers ? Object.entries(timers).reduce((acc, [,timer]) => {
@@ -47,7 +48,7 @@ const EmptyDashboard = () => {
           <TypographyH1 className="h-16">Таймер не обрано</TypographyH1>
           <TypographyMuted>Створіть новий таймер або оберіть існуючий з бокового меню.</TypographyMuted>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card>
             <CardHeader>
               <CardTitle>{ getNumbersBySeconds(sumOfALlTimers || 0) }</CardTitle>
@@ -65,7 +66,7 @@ const EmptyDashboard = () => {
               navigate(`/${mostPopularTimer.id}`)
           }} className={`${mostPopularTimer.id!=='' ? "cursor-pointer hover:bg-accent transition-colors" : ""}`}>
             <CardHeader className="relative">
-              <CardTitle >
+                <CardTitle className="truncate max-w-sm" >
                 {
                   mostPopularTimer.name!== '' ? mostPopularTimer.name : 'Таймери відсутні'
                 }
@@ -78,6 +79,9 @@ const EmptyDashboard = () => {
           </Card>
           
         </div>
+        <Button onClick={()=>setIsTutorialOpened(true)} variant="outline">
+          Туторіал
+        </Button>
         <div>
           <TypographyH2 className=" mt-2 w-full text-center">FAQ</TypographyH2>
           <Accordion type="single" collapsible className="w-full">

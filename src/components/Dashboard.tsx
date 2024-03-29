@@ -56,11 +56,11 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const renderDashboard = (
     <>
-      <TypographyH1 className="truncate max-w-3xl h-16">
+      <TypographyH1 className="truncate max-w-sm lg:max-w-3xl h-16 ">
         {currentTimer?.name}
       </TypographyH1>
       <TypographyMuted>Обраний таймер</TypographyMuted>
-      <div className="grid grid-cols-4 gap-4 h-full mt-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 h-full mt-4">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -96,7 +96,7 @@ const Dashboard = () => {
             <CardDescription>Більше інформації</CardDescription>
           </CardHeader>
         </Card>
-        <Card className="col-span-4 ">
+        <Card className="col-span-2 lg:col-span-4 ">
           <CardHeader>
             <CardDescription>Активність за останній тиждень</CardDescription>
           </CardHeader>

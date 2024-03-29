@@ -144,7 +144,8 @@ const TimerView = () => {
         <div className="flex flex-col gap-4 items-start ">
             <div className="flex items-center justify-between w-full relative" >
                 <TypographyH1 className="w-full flex justify-center items-center">
-                    <div className="truncate max-w-screen-sm text-center h-16 ">{currentTimer?.name}</div>
+                    <div className=" max-w-sm
+                    truncate lg:max-w-screen-sm text-center h-16 ">{currentTimer?.name}</div>
                 </TypographyH1>
                 <Dialog onOpenChange={(open:boolean)=>{
                     if(!open){setRenameInput('') ;}
@@ -159,15 +160,18 @@ const TimerView = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
                         <DropdownMenuGroup>
+                        <DialogTrigger asChild>
                         <DropdownMenuItem>  
-                            <DialogTrigger><span>Редагувати</span></DialogTrigger>
-
+                            <span>Редагувати</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <AlertDialogTrigger asChild>
-                                <span className=" text-red-800 dark:text-red-400">Видалити</span>
-                            </AlertDialogTrigger>
-                        </DropdownMenuItem>
+                        </DialogTrigger>
+                        <AlertDialogTrigger asChild>
+                            <DropdownMenuItem>
+                                
+                                    <span className=" text-red-800 dark:text-red-400">Видалити</span>
+                                
+                            </DropdownMenuItem>
+                        </AlertDialogTrigger>
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -219,8 +223,8 @@ const TimerView = () => {
                 <TabsTrigger value="details">Детальніше</TabsTrigger>
             </TabsList>
             <TabsContent value="main" className='w-full'>
-                <div className="grid grid-cols-3 gap-4 h-full mt-4 ">
-                    <Card>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 h-full mt-4 ">
+                    <Card className='order-1 lg:order-none'>
                     <CardHeader>
                         <CardTitle>
                         {getNumbersBySeconds(currentTimer?.totalTime, additionalSeconds)}
@@ -228,8 +232,8 @@ const TimerView = () => {
                         <CardDescription>Часу витрачено</CardDescription>
                     </CardHeader>
                     </Card>
-                    <Card>
-                    <CardHeader className='items-center h-full justify-center'>
+                    <Card className='order-3 col-span-2 lg:order-none lg:col-span-1'>
+                    <CardHeader className='items-center h-full justify-center '>
                         {/* <CardTitle>Управління</CardTitle> */}
                         <div className="flex gap-2 items-center">
                             <Button onClick={()=>{
@@ -258,7 +262,7 @@ const TimerView = () => {
                         </div>
                     </CardHeader>
                     </Card>
-                    <Card>
+                    <Card className='order-1 lg:order-none'>
                     <CardHeader>
                         <CardTitle>
                         {getNumbersBySeconds(allDatesMedium)}
@@ -267,7 +271,7 @@ const TimerView = () => {
                     </CardHeader>
                     </Card>
                     
-                    <Card className="col-span-3 ">
+                    <Card className=" lg:col-span-3 order-3 col-span-2">
                     <CardHeader>
                         <CardDescription>Загальна активність</CardDescription>
                     </CardHeader>
