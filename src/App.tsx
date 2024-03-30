@@ -205,7 +205,7 @@ function App() {
        <ScrollArea className="h-full max-h-full min-h-full relative box-border ">
         <Toaster />
           <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
-            <DialogContent className='h-screen max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
+            <DialogContent className='h-dvh max-h-dvh max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
               <div className='flex flex-col items-center justify-center gap-2'>
                 <div className='flex gap-2 items-center font-semibold lg:text-4xl'>
                   <Clock size={32} strokeWidth={3}/>
