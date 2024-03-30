@@ -17,6 +17,9 @@ import { useContext } from "react";
 import { TimerContext } from "@/contexts/TimerContext";
 import {  useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
+import { ArrowRight } from 'lucide-react';
+
 const EmptyDashboard = () => {
   const {
     timers,setIsTutorialOpened
@@ -43,9 +46,9 @@ const EmptyDashboard = () => {
 
   const navigate = useNavigate();
   return (
-    <div className="h-full flex flex-col gap-4 ">
+    <div className="h-full flex flex-col gap-4 pb-8">
         <div>
-          <TypographyH1 className="h-16">Таймер не обрано</TypographyH1>
+          <TypographyH1 className="lg:h-16">Таймер не обрано</TypographyH1>
           <TypographyMuted>Створіть новий таймер або оберіть існуючий з бокового меню.</TypographyMuted>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -66,14 +69,13 @@ const EmptyDashboard = () => {
               navigate(`/${mostPopularTimer.id}`)
           }} className={`${mostPopularTimer.id!=='' ? "cursor-pointer hover:bg-accent transition-colors" : ""}`}>
             <CardHeader className="relative">
-                <CardTitle className="truncate max-w-sm" >
+                <CardTitle className="truncate max-w-32 lg:max-w-48 sm:max-w-sm" >
                 {
                   mostPopularTimer.name!== '' ? mostPopularTimer.name : 'Таймери відсутні'
                 }
                 
                 </CardTitle>
-                <i className={`fa-solid fa-arrow-right absolute bottom-4 right-4 
-                  ${mostPopularTimer.id!=='' ? "" : "hidden"}`}></i>
+                <ArrowRight className={cn("absolute bottom-4 right-4 ",(mostPopularTimer.id!=='' ? "" : "hidden"))}/>
               <CardDescription>Найчастіше використовуваний таймер.</CardDescription>
             </CardHeader>
           </Card>

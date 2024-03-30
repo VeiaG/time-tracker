@@ -22,7 +22,7 @@ import { TypographyH1, TypographyMuted } from "./ui/typography";
 import { TimerContext } from "@/contexts/TimerContext";
 import EmptyDashboard from "./EmptyDashboard";
 import { useNavigate } from "react-router-dom";
-
+import { ArrowRight } from 'lucide-react';
 const Dashboard = () => {
 
   
@@ -60,7 +60,7 @@ const Dashboard = () => {
         {currentTimer?.name}
       </TypographyH1>
       <TypographyMuted>Обраний таймер</TypographyMuted>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 h-full mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 h-full mt-4">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -92,11 +92,11 @@ const Dashboard = () => {
           }} className="relative cursor-pointer hover:bg-accent transition-colors">
           <CardHeader className="relative">
             <CardTitle>Детальніше</CardTitle>
-            <i className="fa-solid fa-arrow-right absolute bottom-4 right-4 "></i>
+            <ArrowRight className=" absolute bottom-4 right-4 "/>
             <CardDescription>Більше інформації</CardDescription>
           </CardHeader>
         </Card>
-        <Card className="col-span-2 lg:col-span-4 ">
+        <Card className="sm:col-span-2 lg:col-span-4 ">
           <CardHeader>
             <CardDescription>Активність за останній тиждень</CardDescription>
           </CardHeader>

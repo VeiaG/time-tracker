@@ -11,6 +11,7 @@ import {useDebounce} from '@react-hook/debounce'
 import { getNumbersBySeconds } from "@/lib/timeUtils";
 import { Separator } from "@/components/ui/separator"
 import { MobileContext } from "@/contexts/MobileContext";
+import { Pause, Play, Search } from "lucide-react";
 
 const SideBar = () => {
     const {timers,selectedTimerID,isPaused,seconds,toggleTimer} = useContext(TimerContext);
@@ -28,7 +29,8 @@ const SideBar = () => {
                 className="flex gap-0 items-center justify-between w-full">
                     <div className="flex flex-col gap-0 relative cursor-pointer flex-grow " 
                         onClick={()=>{
-                            navigate(`/${id}`)
+                            navigate(`/${id}`);
+                            setIsSidebarOpened(false);
                         }} >
                         <h2 className=" font-bold text-xl truncate max-w-48 ">{timer.name}</h2>
                         <p  className=" text-muted-foreground truncate max-w-48">
@@ -36,9 +38,15 @@ const SideBar = () => {
                         </p>
                     </div>
                     <Button size="icon" className="aspect-square "
-                        onClick={()=>toggleTimer(id)} 
+                        onClick={()=>{
+                            toggleTimer(id);
+                            setIsSidebarOpened(false);
+                            }
+                        } 
                         variant={isCurrent ? "default" : "outline"}>
-                        <i className={`fa fa-${isCurrent && !isPaused ? 'pause': 'play'} text-xl`} ></i>   
+                            {(isCurrent && !isPaused)? 
+                                <Pause size={16} strokeWidth={2} fill="currentColor"/>:
+                                <Play size={16} strokeWidth={4} fill="currentColor" /> } 
                     </Button>
             </div>
             <Separator />
@@ -57,7 +65,8 @@ const SideBar = () => {
         
         <TypographyH3>Усі таймери:</TypographyH3>
         <div className="relative mr-4">
-            <i className="fa fa-search absolute left-3 top-3 h-3 w-3 text-gray-500 dark:text-gray-400" />
+            <Search size={16}
+                className="absolute left-3 top-3 text-gray-500 dark:text-gray-400" />
             <Input placeholder="Пошук" className="pl-8" onChange={(e)=>{setSearchInput(e.target.value)}}></Input>
         </div>
        

@@ -57,6 +57,7 @@ import { TimerContext } from '@/contexts/TimerContext';
 import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { ElapsedTime } from '@/hooks/useTimer';
+import { Circle, CircleDot, Maximize, Pause, Play, Settings } from 'lucide-react';
 
 const TimerView = () => {
     const {
@@ -144,7 +145,7 @@ const TimerView = () => {
         <div className="flex flex-col gap-4 items-start ">
             <div className="flex items-center justify-between w-full relative" >
                 <TypographyH1 className="w-full flex justify-center items-center">
-                    <div className=" max-w-sm
+                    <div className=" max-w-64
                     truncate lg:max-w-screen-sm text-center h-16 ">{currentTimer?.name}</div>
                 </TypographyH1>
                 <Dialog onOpenChange={(open:boolean)=>{
@@ -155,7 +156,7 @@ const TimerView = () => {
                 
                     <DropdownMenuTrigger asChild>
                         <Button size="icon" className='aspect-square absolute right-0 top-0' variant="outline">
-                            <i className="fa-solid fa-gear"></i>
+                            <Settings size={18} strokeWidth={2}  />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
@@ -223,7 +224,7 @@ const TimerView = () => {
                 <TabsTrigger value="details">Детальніше</TabsTrigger>
             </TabsList>
             <TabsContent value="main" className='w-full'>
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 h-full mt-4 ">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 h-full mt-4 ">
                     <Card className='order-1 lg:order-none'>
                     <CardHeader>
                         <CardTitle>
@@ -232,8 +233,8 @@ const TimerView = () => {
                         <CardDescription>Часу витрачено</CardDescription>
                     </CardHeader>
                     </Card>
-                    <Card className='order-3 col-span-2 lg:order-none lg:col-span-1'>
-                    <CardHeader className='items-center h-full justify-center '>
+                    <Card className='order-3 sm:col-span-2 lg:order-none lg:col-span-1'>
+                    <CardHeader className='sm:items-center h-full justify-center '>
                         {/* <CardTitle>Управління</CardTitle> */}
                         <div className="flex gap-2 items-center">
                             <Button onClick={()=>{
@@ -245,11 +246,19 @@ const TimerView = () => {
                                     }
                                 }} 
                                     aria-label="Zen режим" variant='outline' size="sm">
-                                    <i className={`fa-regular fa-circle${currentId === selectedTimerID ? '-dot': ''}`}></i>
+                                    {
+                                        currentId === selectedTimerID ? 
+                                        <Circle size={16} strokeWidth={3} /> :
+                                        <CircleDot size={16} strokeWidth={3} />
+                                        
+                                    }
                             </Button>
                             <Button onClick={()=>toggleTimer(currentId)} size="icon"
                                 aria-label={isCurrentPaused ? 'Старт' : 'Продовжити'}>
-                                <i className={`fa fa-${isCurrentPaused ? "play" :"pause" }`}></i>
+                                {isCurrentPaused? 
+                                    <Play size={16} strokeWidth={4} fill="currentColor" /> : 
+                                    <Pause size={16} strokeWidth={2} fill="currentColor"/>
+                                }
                             </Button>
                             <Button disabled={!(currentId === selectedTimerID)} onClick={()=>{
                                 if(currentId === selectedTimerID){
@@ -257,13 +266,13 @@ const TimerView = () => {
                                 }
                             }} 
                                 aria-label="Zen режим" variant='outline' size="sm">
-                                <i className={`fa-solid fa-expand`}></i>
+                                <Maximize size={16} strokeWidth={4}/>
                             </Button>
                         </div>
                     </CardHeader>
                     </Card>
                     <Card className='order-1 lg:order-none'>
-                    <CardHeader>
+                    <CardHeader >
                         <CardTitle>
                         {getNumbersBySeconds(allDatesMedium)}
                         </CardTitle>
@@ -271,7 +280,7 @@ const TimerView = () => {
                     </CardHeader>
                     </Card>
                     
-                    <Card className=" lg:col-span-3 order-3 col-span-2">
+                    <Card className=" lg:col-span-3 order-3 sm:col-span-2">
                     <CardHeader>
                         <CardDescription>Загальна активність</CardDescription>
                     </CardHeader>
@@ -354,13 +363,13 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     
     
     return (
-            <div className="grid grid-cols-3 gap-4 w-full h-full mt-4 ">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full h-full mt-4 ">
                 <Calendar
                     mode="range"
                     selected={viewRange}
                     onSelect={setViewRange}
                     numberOfMonths={2}
-                    className="rounded-md border row-span-3 col-span-2 items-center justify-center flex"
+                    className="rounded-md border lg:row-span-3 lg:col-span-2 items-center justify-center flex "
                     locale={uk}
                 />
                 <Card >
@@ -390,7 +399,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                 </CardHeader>
                 </Card>
                 
-                <Card className="col-span-3 mb-8">
+                <Card className="lg:col-span-3 mb-8">
                 <CardHeader>
                     <CardDescription>Активність в цей період</CardDescription>
                 </CardHeader>

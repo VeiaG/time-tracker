@@ -1,5 +1,4 @@
 import React, { useContext, useState } from "react";
-import { Timer } from "../App";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils"
 
@@ -13,18 +12,12 @@ import { toast } from "sonner";
 
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getStyledStringByTimerObject } from "@/lib/timeUtils";
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
-  navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
 
 import {
@@ -48,6 +41,7 @@ import { TypographyMuted } from "./ui/typography";
 
 import { TimerContext } from "@/contexts/TimerContext";
 import { MobileContext } from "@/contexts/MobileContext";
+import {  Clock, Maximize, Menu, Pause, Play, Plus } from "lucide-react";
 const Navigation = () => {
   const {
     addTimer,
@@ -56,8 +50,6 @@ const Navigation = () => {
   const {
     isSidebarOpened,
     setIsSidebarOpened,
-    isMenuOpened,
-    setIsMenuOpened,
   } = useContext(MobileContext);
 
   const [isOpen, setOpen] = useState(false);
@@ -86,9 +78,9 @@ const Navigation = () => {
         <Button variant="secondary" className="lg:hidden" size="icon" onClick={()=>{
             setIsSidebarOpened(!isSidebarOpened);
         }}>
-          <i className="fa-solid fa-bars"></i>
+          <Menu size={16} strokeWidth={4}/>
         </Button>
-        <h2 className="lg:mr-auto  text-3xl font-semibold tracking-tight transition-colors ">
+        <h2 className="lg:mr-auto hidden sm:block   text-3xl  font-semibold tracking-tight transition-colors ">
             <Link to="/">
               TimeTracker    
             </Link>
@@ -97,11 +89,11 @@ const Navigation = () => {
           <NavigationMenuList>
             <Popover open={isOpen} onOpenChange={setOpen} modal>
               <PopoverTrigger asChild>
-                <Button variant="outline" >
-                  <span className="hidden h-10 w-10 lg:block lg:h-auto lg:w-auto">
+                <Button variant="outline" className="w-10 h-10 px-0 lg:px-4 lg:h-auto lg:w-auto">
+                  <Plus size={18} strokeWidth={4} className="lg:hidden"  />
+                  <span className="hidden lg:block  ">
                   Створити таймер
                   </span>
-                  <i className="fa-solid fa-plus lg:hidden"></i>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80">
@@ -172,7 +164,7 @@ const AvatarMenu = ()=>{
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <i className="fa-solid fa-bars"></i>
+          <Menu size={16} strokeWidth={4}/>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
@@ -223,17 +215,15 @@ const TimerNameMenu = ()=>{
   const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer,setIsZenMode} = useContext(TimerContext);
   const navigate=  useNavigate();
   return (
-    <NavigationMenuItem className="
-              flex gap-0 items-center
-            ">
+    <NavigationMenuItem className="flex gap-0 items-center">
     <DropdownMenu >
       <DropdownMenuTrigger asChild>
           <Button  
-          className="rounded-r-none hidden lg:flex"
+          className="rounded-r-none hidden lg:flex gap-2"
           variant="outline"
           disabled={!selectedTimerID}
           >
-            <i className="fa-solid fa-clock mr-2"></i>
+            <Clock size={16} strokeWidth={3} />
             <div className="truncate max-w-32">{
               getStyledStringByTimerObject(currentTimer?.totalTime || 0 , seconds) || (<TypographyMuted>00:00:00</TypographyMuted>) }
             </div>
@@ -261,8 +251,9 @@ const TimerNameMenu = ()=>{
       onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
       disabled={!selectedTimerID}
     >
-      {
-        <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
+      {isPaused? 
+        <Play size={16} strokeWidth={4} fill="currentColor" /> : 
+        <Pause size={16} strokeWidth={2} fill="currentColor"/>
       }
     </Button>
     <Button size="icon"
@@ -272,7 +263,8 @@ const TimerNameMenu = ()=>{
       variant="outline"
       disabled={!selectedTimerID}
       className="lg:rounded-l-none">
-      <i className="fa-solid fa-expand"></i>
+
+      <Maximize size={16} strokeWidth={4} />
     </Button>
     </NavigationMenuItem>
   )

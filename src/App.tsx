@@ -42,6 +42,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { Clock, Pause, Play } from 'lucide-react';
 
 
 function App() {
@@ -60,7 +61,6 @@ function App() {
 
 
   const [isSidebarOpened,setIsSidebarOpened] = useState(false);
-  const [isMenuOpened,setIsMenuOpened] = useState(false);
   
   useEffect(() => {
       if(selectedTimerID && timers){
@@ -140,7 +140,6 @@ function App() {
     }
   }
   const addTimer = (timerName:string) => {
-    console.log("ADD TIMER",timerName)
     const id = crypto.randomUUID();
     const newTimer:Timer = {
       name:timerName,
@@ -175,8 +174,6 @@ function App() {
           {
             isSidebarOpened,
             setIsSidebarOpened,
-            isMenuOpened,
-            setIsMenuOpened,
           }
         }>
        <TimerContext.Provider value={
@@ -210,21 +207,22 @@ function App() {
           <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
             <DialogContent className='h-screen max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
               <div className='flex flex-col items-center justify-center gap-2'>
-                <div className='flex gap-2 items-center font-semibold text-4xl'>
-                  <i className="fa-regular fa-clock"></i>
-                  <span className="truncate max-w-4xl">
+                <div className='flex gap-2 items-center font-semibold lg:text-4xl'>
+                  <Clock size={32} strokeWidth={3}/>
+                  <span className="truncate max-w-32 lg:max-w-4xl">
                     {currentTimer?.name || 'Щось пішло не так...' }
                   </span>
                 </div >
-                <div className='font-bold mb-4 text-9xl'>
+                <div className='font-bold mb-4 text-6xl lg:text-9xl'>
                   {getStyledStringByTimerObject(currentTimer?.totalTime, seconds) || '00:00:00'}
                 </div>
-                <Button size="lg" className='px-8 py-6 text-2xl'
+                <Button size="lg" className='px-8 py-6 '
                     onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
                     disabled={!selectedTimerID}
                   >
-                    {
-                      <i className={`fa fa-${isPaused ? "play" : "pause"}`} />
+                    {isPaused? 
+                      <Play size={16} strokeWidth={4} fill="currentColor" /> : 
+                      <Pause size={16} strokeWidth={2} fill="currentColor"/>
                     }
                   </Button>
               </div>

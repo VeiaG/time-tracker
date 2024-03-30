@@ -12,15 +12,20 @@ type BreadcrumbsMenuProps = {
 }
 import { useLocation } from "react-router-dom"
 import { Fragment } from "react"
+
 const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);
     return (
         <Breadcrumb>
-            <BreadcrumbList>
+            <BreadcrumbList className="align-center">
                 <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                        <Link to="/"><i className="fa-solid fa-house text-lg"></i></Link>
+                        <Link to="/" className="text-sm">
+                            <span>
+                            Головна
+                            </span>
+                        </Link>
                     </BreadcrumbLink>
                     
                 </BreadcrumbItem>
@@ -32,7 +37,7 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
                         <BreadcrumbSeparator />
                         <BreadcrumbItem  key={index}> 
                             <BreadcrumbLink asChild >
-                                <Link className="truncate max-w-sm"
+                                <Link className="truncate lg:max-w-sm max-w-40"
                                     to={to}>{pageName}</Link>
                             </BreadcrumbLink>
                       </BreadcrumbItem>
@@ -40,14 +45,6 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
                         
                     )
                 })}
-
-                {/* {secondPage && <>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbLink asChild >
-                        <Link className="truncate max-w-sm" 
-                            to={secondPage.url}>{secondPage.name}</Link>
-                    </BreadcrumbLink>
-                </>} */}
             </BreadcrumbList>
         </Breadcrumb>
     )
