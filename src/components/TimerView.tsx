@@ -247,7 +247,7 @@ const TimerView = () => {
                                 }} 
                                     aria-label="Zen режим" variant='outline' size="sm">
                                     {
-                                        currentId === selectedTimerID ? 
+                                        currentId !== selectedTimerID ? 
                                         <Circle size={16} strokeWidth={3} /> :
                                         <CircleDot size={16} strokeWidth={3} />
                                         
