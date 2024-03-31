@@ -202,8 +202,8 @@ const AvatarMenu = ()=>{
             <DropdownMenuShortcut>CTRL+K</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <span>Налаштування</span>
+          <DropdownMenuItem asChild>
+            <Link to='settings'>Налаштування</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup> 
       </DropdownMenuContent>

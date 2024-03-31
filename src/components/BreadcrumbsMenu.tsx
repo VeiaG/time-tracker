@@ -12,7 +12,10 @@ type BreadcrumbsMenuProps = {
 }
 import { useLocation } from "react-router-dom"
 import { Fragment } from "react"
-
+const pages = {
+    settings:"Налаштування",
+    about:"Про застосунок",
+}
 const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);
@@ -31,7 +34,8 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
                 </BreadcrumbItem>
                 {pathnames.map((value, index) => {
                     const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-                    const pageName = timers[value] ? timers[value].name : value;
+                    
+                    const pageName = timers[value] ? timers[value].name : pages[value] || value;
                     return (
                     <Fragment key={index}>
                         <BreadcrumbSeparator />

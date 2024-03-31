@@ -2,7 +2,7 @@ import {useState,useEffect} from 'react';
 import Sidebar from './components/Sidebar'
 import TimerView from './components/TimerView'
 import Content from './components/Content';
-import { HashRouter, Routes,Route } from 'react-router-dom';
+import { Routes,Route } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Navigation from './components/Navigation';
 import { useLocalForage } from './hooks/useLocalForage';
@@ -13,7 +13,7 @@ import localforage from 'localforage';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AboutPage from './components/AboutPage';
 import { Card, CardContent , CardHeader,CardDescription ,CardTitle} from "@/components/ui/card"
-
+import SettingsPage from './components/SettingsPage';
 import { TimerContext } from './contexts/TimerContext';
 import BreadcrumbsMenu from './components/BreadcrumbsMenu';
 import {
@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/carousel"
 import { Clock, Pause, Play } from 'lucide-react';
 
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
@@ -231,13 +232,16 @@ function App() {
           </Dialog>
           <TutorialDialog open={isTutorialOpened} onOpenChange={setIsTutorialOpened}/>
 
-        <HashRouter> 
+        <BrowserRouter> 
           <Navigation />
           <div className="container flex flex-col relative max-h-full h-full box-border pt-24">
             <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative grow">
           <Routes>
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/settings" element={<Content>
+                <SettingsPage />
+              </Content>} />
               <Route path="/:id" element={
                 <>
                   <Sidebar />
@@ -256,7 +260,7 @@ function App() {
           </Routes>
           </div>
           </div>
-        </HashRouter>
+        </BrowserRouter>
         </ScrollArea>
         </ThemeProvider>
        
