@@ -231,7 +231,7 @@ function App() {
 
         <BrowserRouter> 
           <Navigation />
-          <div className="container flex flex-col relative max-h-full h-full box-border pt-24">
+          <div className="container flex flex-col relative max-h-full h-full box-border pt-6 sm:pt-24">
             <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative grow">
           <Routes>

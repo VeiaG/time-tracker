@@ -27,19 +27,19 @@ const SettingsPage = () => {
     ]
     const [currentPage, setCurrentPage] = useState(0)
   return (
-    <div className="grid grid-cols-4 gap-4 pt-4">
-        <div className="col-span-4">
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4">
+        <div className="sm:col-span-4">
             <TypographyH1>Налаштування</TypographyH1>
-        </div>g
+        </div>
         <div className="col-span-1">
-            <div className="flex flex-col gap-2">
+            <div className="flex sm:flex-col gap-2">
                 {pages.map((page,index)=>(
                     <Button key={index} className="justify-start" variant={currentPage === index ? "secondary" : "ghost"}
                     onClick={()=>setCurrentPage(index)}>{page.title}</Button>
                 ))}
             </div>
         </div>
-        <div className="col-span-3">
+        <div className="sm:col-span-3">
             {pages[currentPage].component}
         </div>
     </div>

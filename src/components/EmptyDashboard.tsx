@@ -46,7 +46,7 @@ const EmptyDashboard = () => {
 
   const navigate = useNavigate();
   return (
-    <div className="h-full flex flex-col gap-4 pb-8">
+    <div className="h-full flex flex-col gap-4">
         <div>
           <TypographyH1 className="lg:h-16">Таймер не обрано</TypographyH1>
           <TypographyMuted>Створіть новий таймер або оберіть існуючий з бокового меню.</TypographyMuted>

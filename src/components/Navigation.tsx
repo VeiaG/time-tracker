@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils"
 
 import {
   Popover,
@@ -14,12 +13,6 @@ import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getStyledStringByTimerObject } from "@/lib/timeUtils";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
 
 import {
   DropdownMenu,
@@ -42,7 +35,7 @@ import { TypographyMuted } from "./ui/typography";
 
 import { TimerContext } from "@/contexts/TimerContext";
 import { MobileContext } from "@/contexts/MobileContext";
-import {  Clock, Home, Maximize, Menu, Pause, Play, Plus } from "lucide-react";
+import {  CircleUserRound, Clock, Home, Maximize, Menu, Pause, Play, Plus } from "lucide-react";
 const Navigation = () => {
   const {
     addTimer,
@@ -72,30 +65,34 @@ const Navigation = () => {
     }
     toast.warning(`Будь-ласка введіть назву таймера!`);
   };
-
+  const closeSidebar = () => {
+    setIsSidebarOpened(false);
+  }
   return (
     <nav className="
       py-3 sm:py-4 border-t sm:border-t-0 sm:border-b fixed bottom-0 sm:bottom-auto sm:top-0 
       left-0 w-full z-50 sm:backdrop-blur-sm bg-background sm:bg-none">
-        <div className="container flex gap-6 sm:gap-2 lg:justify-normal justify-center items-center">
+        <div className="container flex gap-8 sm:gap-2 lg:justify-normal justify-center items-center">
             <Button variant="outline" className=" lg:hidden" 
-              size="icon" onClick={()=>{
-                setIsSidebarOpened(!isSidebarOpened);
-            }}>
+              size="icon" onClick={()=>setIsSidebarOpened(!isSidebarOpened)}>
               <Menu size={16} strokeWidth={4}/>
             </Button>
-            <Link to="/" className="mr-auto hidden sm:block text-3xl font-semibold tracking-tight ">
+            <Link onClick={closeSidebar} to="/" className="mr-auto hidden sm:block text-3xl font-semibold tracking-tight ">
               TimeTracker    
-            </Link>
-            <Button className="sm:hidden flex" asChild size="icon" variant="outline">
+            </Link >
+            <Button className="sm:hidden flex" asChild size="icon" variant="outline" onClick={closeSidebar}>
               <Link to="/" >
                 <Home size={16} strokeWidth={3}/>
               </Link>
             </Button>
             <Popover open={isOpen} onOpenChange={setOpen} modal>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-10 h-10 px-0 lg:px-4 lg:h-auto lg:w-auto">
+                <Button  variant="outline" className="
+                w-10 h-10 px-0 
+                lg:px-4 lg:h-auto lg:w-auto sm:rounded-sm
+                ">
                   <Plus size={18} strokeWidth={4} className="lg:hidden"  />
+
                   <span className="hidden lg:block">
                     Створити таймер
                   </span>
@@ -122,44 +119,6 @@ const Navigation = () => {
 export default Navigation;
 
 
-type ListItemProps = {
-  title: string;
-  to: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-};
-const ListItem = React.forwardRef<React.ElementRef<typeof Link>, ListItemProps>(
-  ({ className, title, to, icon, children, ...props }, ref) => {
-    return (
-      <li >
-        <NavigationMenuLink asChild>
-          <Link
-            ref={ref}
-            to={to}
-            className={cn(
-              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-              className
-            )}
-            {...props}
-          >
-            <div className="flex flex-row gap-4 items-center">
-              {icon && <div className="text-xl">{icon}</div>}
-              <div className="">
-                <div className="text-sm font-medium leading-none">{title}</div>
-                <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                  {children}
-                </p>
-              </div>
-            </div>
-          </Link>
-        </NavigationMenuLink>
-      </li>
-    );
-  }
-);
-ListItem.displayName = "ListItem";
-
 const AvatarMenu = ()=>{
     const {theme,setTheme} = useTheme();
 
@@ -168,7 +127,9 @@ const AvatarMenu = ()=>{
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
           <AvatarImage src="" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback >
+              <CircleUserRound size={24} strokeWidth={2} />
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
@@ -224,7 +185,7 @@ const TimerNameMenu = ()=>{
     <DropdownMenu >
       <DropdownMenuTrigger asChild>
           <Button  
-          className="rounded-r-none hidden lg:flex gap-2"
+          className="rounded-r-none hidden sm:flex gap-2"
           variant="outline"
           disabled={!selectedTimerID}
           >
@@ -253,7 +214,7 @@ const TimerNameMenu = ()=>{
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-    <Button size="icon" className="rounded-none  hidden lg:flex"
+    <Button size="icon" className="rounded-none  hidden sm:flex"
       onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
       disabled={!selectedTimerID}
     >

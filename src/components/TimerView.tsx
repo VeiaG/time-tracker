@@ -363,7 +363,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     
     
     return (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full h-full mt-4 ">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full mt-4 ">
                 <Calendar
                     mode="range"
                     selected={viewRange}
