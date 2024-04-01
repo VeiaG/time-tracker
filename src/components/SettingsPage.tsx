@@ -30,7 +30,7 @@ const SettingsPage = () => {
     <div className="grid grid-cols-4 gap-4 pt-4">
         <div className="col-span-4">
             <TypographyH1>Налаштування</TypographyH1>
-        </div>
+        </div>g
         <div className="col-span-1">
             <div className="flex flex-col gap-2">
                 {pages.map((page,index)=>(

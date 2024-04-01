@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 import { toast } from "sonner";
 
@@ -41,7 +42,7 @@ import { TypographyMuted } from "./ui/typography";
 
 import { TimerContext } from "@/contexts/TimerContext";
 import { MobileContext } from "@/contexts/MobileContext";
-import {  Clock, Maximize, Menu, Pause, Play, Plus } from "lucide-react";
+import {  Clock, Home, Maximize, Menu, Pause, Play, Plus } from "lucide-react";
 const Navigation = () => {
   const {
     addTimer,
@@ -73,26 +74,30 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="py-4 border-b fixed top-0 left-0 w-full z-50 backdrop-blur-sm">
-      <div className="container flex gap-2 lg:justify-normal justify-between items-center">
-        <Button variant="secondary" className="lg:hidden" size="icon" onClick={()=>{
-            setIsSidebarOpened(!isSidebarOpened);
-        }}>
-          <Menu size={16} strokeWidth={4}/>
-        </Button>
-        <h2 className="lg:mr-auto hidden sm:block   text-3xl  font-semibold tracking-tight transition-colors ">
-            <Link to="/">
+    <nav className="
+      py-3 sm:py-4 border-t sm:border-t-0 sm:border-b fixed bottom-0 sm:bottom-auto sm:top-0 
+      left-0 w-full z-50 sm:backdrop-blur-sm bg-background sm:bg-none">
+        <div className="container flex gap-6 sm:gap-2 lg:justify-normal justify-center items-center">
+            <Button variant="outline" className=" lg:hidden" 
+              size="icon" onClick={()=>{
+                setIsSidebarOpened(!isSidebarOpened);
+            }}>
+              <Menu size={16} strokeWidth={4}/>
+            </Button>
+            <Link to="/" className="mr-auto hidden sm:block text-3xl font-semibold tracking-tight ">
               TimeTracker    
             </Link>
-        </h2>
-        <NavigationMenu className=" lg:flex">
-          <NavigationMenuList>
+            <Button className="sm:hidden flex" asChild size="icon" variant="outline">
+              <Link to="/" >
+                <Home size={16} strokeWidth={3}/>
+              </Link>
+            </Button>
             <Popover open={isOpen} onOpenChange={setOpen} modal>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-10 h-10 px-0 lg:px-4 lg:h-auto lg:w-auto">
                   <Plus size={18} strokeWidth={4} className="lg:hidden"  />
-                  <span className="hidden lg:block  ">
-                  Створити таймер
+                  <span className="hidden lg:block">
+                    Створити таймер
                   </span>
                 </Button>
               </PopoverTrigger>
@@ -109,9 +114,7 @@ const Navigation = () => {
             </Popover>
             <TimerNameMenu />
             <AvatarMenu/>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>
+        </div>
     </nav>
   );
 };
@@ -163,9 +166,10 @@ const AvatarMenu = ()=>{
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Menu size={16} strokeWidth={4}/>
-        </Button>
+        <Avatar className="cursor-pointer">
+          <AvatarImage src="" />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Меню</DropdownMenuLabel>
@@ -215,7 +219,8 @@ const TimerNameMenu = ()=>{
   const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer,setIsZenMode} = useContext(TimerContext);
   const navigate=  useNavigate();
   return (
-    <NavigationMenuItem className="flex gap-0 items-center">
+    <div className="
+      flex gap-0 items-center ">
     <DropdownMenu >
       <DropdownMenuTrigger asChild>
           <Button  
@@ -224,6 +229,7 @@ const TimerNameMenu = ()=>{
           disabled={!selectedTimerID}
           >
             <Clock size={16} strokeWidth={3} />
+
             <div className="truncate max-w-32">{
               getStyledStringByTimerObject(currentTimer?.totalTime || 0 , seconds) || (<TypographyMuted>00:00:00</TypographyMuted>) }
             </div>
@@ -263,10 +269,9 @@ const TimerNameMenu = ()=>{
       variant="outline"
       disabled={!selectedTimerID}
       className="lg:rounded-l-none">
-
       <Maximize size={16} strokeWidth={4} />
     </Button>
-    </NavigationMenuItem>
+    </div>
   )
 }
 
