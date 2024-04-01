@@ -167,10 +167,7 @@ function App() {
   
   return (
       <div className="min-h-dvh h-dvh max-h-dvh relative box-border   ">
-        {/* <div className=" lg:hidden
-          flex items-center justify-center top-0 left-0 fixed w-full h-dvh bg-black z-50">
-          Сайт не оптимізовано для таких розмірів екрану
-        </div> */}
+
         <MobileContext.Provider value={
           {
             isSidebarOpened,
