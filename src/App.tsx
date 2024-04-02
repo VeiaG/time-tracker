@@ -49,6 +49,11 @@ import { Clock, Pause, Play } from 'lucide-react';
 
 import { BrowserRouter } from 'react-router-dom';
 
+
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from '@vercel/speed-insights/react';
+
+
 function App() {
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
   
@@ -234,6 +239,8 @@ function App() {
 
         <BrowserRouter> 
           <Navigation />
+          <SpeedInsights/>
+          <Analytics/>
           <div className="container flex flex-col relative max-h-full h-full box-border pt-6 sm:pt-24">
             <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative grow">
