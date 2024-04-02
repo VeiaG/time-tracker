@@ -28,6 +28,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@react-hook/debounce": "^4.0.0",
     "@vercel/analytics": "^1.2.2",
+    "@vercel/speed-insights": "^1.0.10",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
