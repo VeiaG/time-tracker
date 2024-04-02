@@ -21,6 +21,7 @@ import {
   DialogContent,
 
 } from "@/components/ui/dialog"
+import { Analytics } from "@vercel/analytics/react"
 export type AllTimers ={
   [id:string]:Timer,
 }
@@ -167,7 +168,7 @@ function App() {
   
   return (
       <div className="min-h-dvh h-dvh max-h-dvh relative box-border   ">
-
+        <Analytics/>
         <MobileContext.Provider value={
           {
             isSidebarOpened,
