@@ -88,7 +88,7 @@ function App() {
  
 
   const refreshAceessToken = useCallback(async () => {
-    const response = await fetch('http://localhost:3001/auth/google/refresh', {
+    const response = await fetch('https://server.time-tracker.veiag.xyz/auth/google/refresh', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
