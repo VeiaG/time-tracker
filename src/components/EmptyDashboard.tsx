@@ -19,12 +19,12 @@ import {  useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from 'lucide-react';
-
+import { useTranslation } from "react-i18next";
 const EmptyDashboard = () => {
   const {
     timers,setIsTutorialOpened
   } = useContext(TimerContext);
-
+  const {t} = useTranslation();
   const sumOfALlTimers = timers ? Object.entries(timers).reduce((acc, [,timer]) => {
     return acc + timer.totalTime;
   }, 0) : 0;
@@ -48,20 +48,20 @@ const EmptyDashboard = () => {
   return (
     <div className="h-full flex flex-col gap-4">
         <div>
-          <TypographyH1 className="lg:h-16">Таймер не обрано</TypographyH1>
-          <TypographyMuted>Створіть новий таймер або оберіть існуючий з бокового меню.</TypographyMuted>
+          <TypographyH1 className="lg:h-16">{t("EmptyDashboard:no timer selected")}</TypographyH1>
+          <TypographyMuted>{t("EmptyDashboard:no timer description")}</TypographyMuted>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card>
             <CardHeader>
               <CardTitle>{ getNumbersBySeconds(sumOfALlTimers || 0) }</CardTitle>
-              <CardDescription>Загально виміряно часу</CardDescription>
+              <CardDescription>{t("EmptyDashboard:total all time")}</CardDescription>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle>{ timers ? Object.keys(timers).length : 0 }</CardTitle>
-              <CardDescription>Створено таймерів</CardDescription>
+              <CardDescription>{t("EmptyDashboard:created timers")}</CardDescription>
             </CardHeader>
           </Card>
           <Card onClick={()=>{
@@ -71,40 +71,38 @@ const EmptyDashboard = () => {
             <CardHeader className="relative">
                 <CardTitle className="truncate max-w-32 lg:max-w-48 sm:max-w-sm" >
                 {
-                  mostPopularTimer.name!== '' ? mostPopularTimer.name : 'Таймери відсутні'
+                  mostPopularTimer.name!== '' ? mostPopularTimer.name : (t("EmptyDashboard:no timer"))
                 }
                 
                 </CardTitle>
                 <ArrowRight className={cn("absolute bottom-4 right-4 ",(mostPopularTimer.id!=='' ? "" : "hidden"))}/>
-              <CardDescription>Найчастіше використовуваний таймер.</CardDescription>
+              <CardDescription>{t("EmptyDashboard:most used timer")}</CardDescription>
             </CardHeader>
           </Card>
           
         </div>
         <Button onClick={()=>setIsTutorialOpened(true)} variant="outline">
-          Туторіал
+          {t("Tutorial")}
         </Button>
         <div>
           <TypographyH2 className=" mt-2 w-full text-center">FAQ</TypographyH2>
           <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
-              <AccordionTrigger>Куди зберігаються данні?</AccordionTrigger>
+              <AccordionTrigger>{t("FAQ question1")}</AccordionTrigger>
               <AccordionContent>
-                Дані зберігаються в локальному сховищі браузера. Вони нікуди не відправляються. 
-
+              {t("FAQ answer1")}
               </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
-              <AccordionTrigger>Чи працює таймер якщо закрити вкладку?</AccordionTrigger>
+              <AccordionTrigger>{t("FAQ question2")}</AccordionTrigger>
               <AccordionContent>
-                Так, таймер працює в фоновому режимі. Він продовжує відлік часу навіть якщо ви закриєте вкладку.
+              {t("FAQ answer2")}
               </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-3">
-              <AccordionTrigger> Для чого взагалі таймер? </AccordionTrigger>
+              <AccordionTrigger>{t("FAQ question3")}</AccordionTrigger>
               <AccordionContent>
-                Таймер допомагає відстежувати час, який ви витрачаєте на різні завдання. Це допомагає бути більш продуктивним та краще планувати свій час. 
-
+              {t("FAQ answer3")}
               </AccordionContent>
           </AccordionItem>
           </Accordion>

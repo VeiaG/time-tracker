@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 
 import {
@@ -35,7 +35,10 @@ import { TypographyMuted } from "./ui/typography";
 
 import { TimerContext } from "@/contexts/TimerContext";
 import { MobileContext } from "@/contexts/MobileContext";
-import {  CircleUserRound, Clock, Home, Maximize, Menu, Pause, Play, Plus } from "lucide-react";
+import {  Check, CircleUserRound, Clock, Home, Maximize, Menu, Pause, Play, Plus, RefreshCw, RefreshCwOff } from "lucide-react";
+import { GoogleContext } from "@/contexts/GoogleContext";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 const Navigation = () => {
   const {
     addTimer,
@@ -45,13 +48,15 @@ const Navigation = () => {
     isSidebarOpened,
     setIsSidebarOpened,
   } = useContext(MobileContext);
+  const {userTokens} = useContext(GoogleContext);
+  const {currentSyncOption,syncWithGoogleDrive} = useContext(GoogleContext);
 
   const [isOpen, setOpen] = useState(false);
 
   const onClose = () => setOpen(false);
 
   const [value, setValue] = useState("");
-
+  const {t} = useTranslation();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setValue(event.target.value);
 
@@ -59,11 +64,11 @@ const Navigation = () => {
     if (value) {
       onClose();
       addTimer(value);
-      toast.success(`Таймер ${value} успішно створено!`);
+      toast.success(t("timer created",{value:value}),{position:"top-center"});
       setValue("");
       return;
     }
-    toast.warning(`Будь-ласка введіть назву таймера!`);
+    toast.warning(t("please enter timer name"),{position:"top-center"});
   };
   const closeSidebar = () => {
     setIsSidebarOpened(false);
@@ -85,16 +90,25 @@ const Navigation = () => {
                 <Home size={16} strokeWidth={3}/>
               </Link>
             </Button>
+            <Button onClick={()=>syncWithGoogleDrive(true)} variant="ghost" size="icon" 
+            className={cn(`fixed z-20 right-4 top-4 sm:right-auto sm:top-auto sm:z-auto sm:relative
+            `,!userTokens ?"hidden":"")}>
+              {
+                (currentSyncOption.type==='sync')?  <RefreshCw className="animate-spin"/>:
+                (currentSyncOption.type==='done')?  <Check/>:
+                (currentSyncOption.type==='error')?  <RefreshCwOff/>: null
+              }
+            </Button>
             <Popover open={isOpen} onOpenChange={setOpen} modal>
               <PopoverTrigger asChild>
                 <Button  variant="outline" className="
                 w-10 h-10 px-0 
-                lg:px-4 lg:h-auto lg:w-auto sm:rounded-sm
+                lg:px-4  lg:w-auto sm:rounded-md
                 ">
                   <Plus size={18} strokeWidth={4} className="lg:hidden"  />
 
                   <span className="hidden lg:block">
-                    Створити таймер
+                    {t("create timer")}
                   </span>
                 </Button>
               </PopoverTrigger>
@@ -102,10 +116,10 @@ const Navigation = () => {
                 <div className="grid gap-4">
                   <Input
                     type="text"
-                    placeholder="Назва таймера"
+                    placeholder={t("timerName")}
                     onChange={handleChange}
                   />
-                  <Button onClick={handleClose}>Додати</Button>
+                  <Button onClick={handleClose}>{t("Add")}</Button>
                 </div>
               </PopoverContent>
             </Popover>
@@ -121,25 +135,32 @@ export default Navigation;
 
 const AvatarMenu = ()=>{
     const {theme,setTheme} = useTheme();
-
+    const {userData} = useContext(GoogleContext);
+    const {t} = useTranslation();
+    
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src="" />
+          <AvatarImage src={userData?.picture || ""} />
           <AvatarFallback >
-              <CircleUserRound size={24} strokeWidth={2} />
+              {userData?.name ?
+                  userData.name.split(" ").map((word)=>word[0]).join("")
+                  :
+                  <CircleUserRound size={24} strokeWidth={2} />
+              }
+              
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Меню</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("Menu")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               
-              <span>Тема</span>
+              <span>{t("Theme")}</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
@@ -147,15 +168,15 @@ const AvatarMenu = ()=>{
                   onValueChange={(value)=>setTheme(value as "dark" | "light" | "system")}>
                 <DropdownMenuRadioItem value="light">
                   
-                  <span>Світла</span>
+                  <span>{t("Light")}</span>
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="dark">
                     
-                  <span>Темна</span>
+                  <span>{t("Dark")}</span>
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="system">
                     
-                    <span>Системна</span>
+                    <span>{t("System")}</span>
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
@@ -163,12 +184,12 @@ const AvatarMenu = ()=>{
           </DropdownMenuSub>
           
           <DropdownMenuItem>
-            <span>Сполучення клавіш</span>
+            <span>{t("keyboard shortcuts")}</span>
             <DropdownMenuShortcut>CTRL+K</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link to='settings'>Налаштування</Link>
+            <Link to='settings'>{t("Settings")}</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup> 
       </DropdownMenuContent>
@@ -179,6 +200,7 @@ const TimerNameMenu = ()=>{
   
   const {selectedTimerID,isPaused,currentTimer,seconds,unselectTimer,toggleTimer,setIsZenMode} = useContext(TimerContext);
   const navigate=  useNavigate();
+  const {t}= useTranslation();
   return (
     <div className="
       flex gap-0 items-center ">
@@ -204,12 +226,12 @@ const TimerNameMenu = ()=>{
             navigate(`/${selectedTimerID}`) ;
           }}>
             
-            <span>Детальніше</span>
+            <span>{t("Dashboard details")}</span>
             
           </DropdownMenuItem>
           <DropdownMenuItem onClick={()=>unselectTimer()}>
             
-            <span className=" text-red-800 dark:text-red-400">Зняти вибір</span>
+            <span className=" text-red-800 dark:text-red-400">{t("unselect")}</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

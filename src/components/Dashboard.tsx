@@ -23,8 +23,9 @@ import { TimerContext } from "@/contexts/TimerContext";
 import EmptyDashboard from "./EmptyDashboard";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 const Dashboard = () => {
-
+  const {t} = useTranslation();
   
   const {
     currentTimerDate,
@@ -59,14 +60,14 @@ const Dashboard = () => {
       <TypographyH1 className="truncate max-w-sm lg:max-w-3xl h-16 ">
         {currentTimer?.name}
       </TypographyH1>
-      <TypographyMuted>Обраний таймер</TypographyMuted>
+      <TypographyMuted>{t("Dashboard selectedTimer")}</TypographyMuted>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 h-full mt-4">
         <Card>
           <CardHeader>
             <CardTitle>
               {getNumbersBySeconds(currentTimer?.totalTime, seconds)}
             </CardTitle>
-            <CardDescription>Часу витрачено</CardDescription>
+            <CardDescription>{t("Dashboard timeElapsed")}</CardDescription>
           </CardHeader>
         </Card>
         <Card>
@@ -77,13 +78,13 @@ const Dashboard = () => {
                 seconds,new Date().toDateString()
               )}
             </CardTitle>
-            <CardDescription>Сьогодні</CardDescription>
+            <CardDescription>{t("Dashboard today")}</CardDescription>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>{getNumbersBySeconds(sevenDaysSeconds)}</CardTitle>
-            <CardDescription>За останній тиждень</CardDescription>
+            <CardDescription>{t("Dashboard forWeek")}</CardDescription>
           </CardHeader>
         </Card>
         <Card onClick={()=>{
@@ -91,14 +92,14 @@ const Dashboard = () => {
               navigate(`/${selectedTimerID}`)
           }} className="relative cursor-pointer hover:bg-accent transition-colors">
           <CardHeader className="relative">
-            <CardTitle>Детальніше</CardTitle>
+            <CardTitle>{t("Dashboard details")}</CardTitle>
             <ArrowRight className=" absolute bottom-4 right-4 "/>
-            <CardDescription>Більше інформації</CardDescription>
+            <CardDescription>{t("Dashboard details desc")}</CardDescription>
           </CardHeader>
         </Card>
         <Card className="sm:col-span-2 lg:col-span-4 ">
           <CardHeader>
-            <CardDescription>Активність за останній тиждень</CardDescription>
+            <CardDescription>{t("Dashboard activity")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={356}>
@@ -121,7 +122,7 @@ const Dashboard = () => {
                   }
                 />
                 
-                <Tooltip formatter={(value) => [value + " год.", "Час"]} 
+                <Tooltip 
                 content={<CustomTooltip/>}/>
                 <Area
                   animationDuration={200} 

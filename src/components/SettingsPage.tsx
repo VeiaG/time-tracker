@@ -2,8 +2,8 @@ import localforage from "localforage"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { TypographyH1 } from "./ui/typography"
-import { useState } from "react"
-import { AlertCircle, Download, DownloadCloud, Loader2, Trash2 } from "lucide-react"
+import { useContext, useMemo, useState } from "react"
+import { AlertCircle, Download, DownloadCloud, Loader2, Trash, Trash2 } from "lucide-react"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -14,40 +14,21 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
   } from "@/components/ui/alert-dialog"
-import { useNavigate } from "react-router-dom"
+import { googleLogout } from '@react-oauth/google';
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog"
-
-
-const SettingsPage = () => {
-    const pages = [
-        {title: "Акаунт", component: <div>Акаунт</div>},
-        {title: "Вигляд", component: <div>Вигляд</div>},
-        {title: "Данні", component: <DataSettings/>},
-    ]
-    const [currentPage, setCurrentPage] = useState(0)
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4">
-        <div className="sm:col-span-4">
-            <TypographyH1>Налаштування</TypographyH1>
-        </div>
-        <div className="col-span-1">
-            <div className="flex sm:flex-col gap-2">
-                {pages.map((page,index)=>(
-                    <Button key={index} className="justify-start" variant={currentPage === index ? "secondary" : "ghost"}
-                    onClick={()=>setCurrentPage(index)}>{page.title}</Button>
-                ))}
-            </div>
-        </div>
-        <div className="sm:col-span-3">
-            {pages[currentPage].component}
-        </div>
-    </div>
-  )
-}
+import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleContext } from "@/contexts/GoogleContext"
+import { FileInfo } from "@/hooks/useGoogleDrive"
+import { useTranslation } from "react-i18next"
 
 const DataSettings = ()=>{
+    const {
+        syncWithGoogleDrive
+    } = useContext(GoogleContext);
     const [isExporting, setIsExporting] = useState(false)
+    const {t} = useTranslation();
     const exportLocalForage =async ()=>{
         setIsExporting(true)
 
@@ -56,7 +37,7 @@ const DataSettings = ()=>{
             saveObj[key] = value;
         }).then(()=> {
 
-            console.log(saveObj);
+            // console.log(saveObj);
             const blob = new Blob([JSON.stringify(saveObj)], {type: "application/json"});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -85,7 +66,7 @@ const DataSettings = ()=>{
         reader.onload = async (e) => {
             const content = e.target.result as string;
             const data = JSON.parse(content);
-            console.log(data);
+            // console.log(data);
             for (const key in data) {
                 if (Object.prototype.hasOwnProperty.call(data, key)) {
                     const element = data[key];
@@ -94,7 +75,9 @@ const DataSettings = ()=>{
             }
         }
         reader.readAsText(file);
+        await syncWithGoogleDrive(true);
         setIsImporting(true);
+        
         // window.location.reload();
     }
     const importButton = async ()=>{
@@ -123,42 +106,42 @@ const DataSettings = ()=>{
         <AlertDialog open={isImporting} onOpenChange={setIsImporting}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Файл імпортовано</AlertDialogTitle>
-                    <AlertDialogDescription>Для продовження перезавантажте сторінку</AlertDialogDescription>
+                    <AlertDialogTitle>{t("import title")}</AlertDialogTitle>
+                    <AlertDialogDescription>{t("import desc")}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter >
                     <AlertDialogAction onClick={()=>{
                         window.location.reload();
-                    }}>Перезавантажити</AlertDialogAction>
+                    }}>{t("Reload")}</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
         <CardHeader>
-            <CardTitle>Налаштування данних</CardTitle>
+            <CardTitle>{t("data title")}</CardTitle>
             <CardDescription>
-                Тут ви можете зберегти ваші таймери як файл, або відновити їх з існуючого файлу.
+                {t("data desc")}
             </CardDescription>
         </CardHeader>
         <CardContent>
             <div className="flex flex-col gap-4">
                 <Alert >
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Увага</AlertTitle>
+                    <AlertTitle>{t("Alert")}</AlertTitle>
                     <AlertDescription>
-                        Під час імпорту 
-                        <span className="text-red-800 dark:text-red-500"> всі ваші поточні данні будуть видалені!</span><br/>
-                        Впевніться в правильності файлу перед імпортом.
+                        {t("alert desc1")}
+                        <span className="text-red-800 dark:text-red-500">  {t("alert desc2")}</span><br/>
+                        {t("alert desc3")}
                     </AlertDescription>
                 </Alert>
                 <Button disabled={isExporting} onClick={exportLocalForage} variant="outline">
                     {!isExporting ? <>
-                        <DownloadCloud className="mr-2 h-4 w-4" />Експорт 
+                        <DownloadCloud className="mr-2 h-4 w-4" />{t("Export")} 
                     </> : <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin"/>Завантаження
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin"/>{t("Loading")}
                     </>}</Button>
                 <Button
                  onClick={importButton} variant="outline">
-                    <Download className="mr-2 h-4 w-4" />Імпорт 
+                    <Download className="mr-2 h-4 w-4" />{t("Import")} 
                 </Button>
                 
             </div>
@@ -167,9 +150,9 @@ const DataSettings = ()=>{
     </Card>
     <Card>
         <CardHeader>
-            <CardTitle>Видалення данних</CardTitle>
+            <CardTitle>{t("delete title")}</CardTitle>
             <CardDescription>
-                Видалення всіх данних збережених на цьому пристрої.
+                {t("delete desc")}
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -177,20 +160,20 @@ const DataSettings = ()=>{
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />Видалити данні 
+                        <Trash2 className="mr-2 h-4 w-4" /> {t("delete all")}
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>Видалити данні</AlertDialogTitle>
-                            <AlertDialogDescription>Ви впевнені що хочете видалити усі данні?</AlertDialogDescription>
+                            <AlertDialogTitle>{t("delete all")}</AlertDialogTitle>
+                            <AlertDialogDescription>{t("delete modal")}</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel >
-                                Скасувати
+                                {t("Cancel")}
                             </AlertDialogCancel>
                             <AlertDialogAction onClick={deleteData} >
-                                Видалити
+                                {t("Delete")}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -200,5 +183,144 @@ const DataSettings = ()=>{
     </Card>
     </div>
 }
+const AccountSettings = ()=>{
+    const {
+        setUserTokens,
+        userTokens,
+        setRefreshToken,
+        userData,
+        refreshAceessToken,
+        userFiles,
+        deleteFile,
+    } = useContext(GoogleContext);
+    const {t} = useTranslation();
+    
+  
+    const googleLogin = useGoogleLogin({
+      onSuccess: async ({ code }) => {
+          const response = await fetch('https://server.time-tracker.veiag.xyz/auth/google', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ code })
+          });
+        const tokens = await response.json();
+        setRefreshToken(tokens?.refresh_token);
+
+        //delete acess token from tokens
+        delete tokens.refresh_token;
+        // console.log('SET Tokens',tokens);
+        setUserTokens(tokens);
+      },
+      scope:"https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile",
+      flow: 'auth-code',
+    });
+    
+    return <div className="grid gap-4 grid-cols-2">
+        
+        <Card>
+            <CardHeader>
+                <CardTitle>Ввійдено як {userData?.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Button onClick={googleLogin} variant="outline">Увійти через Google</Button>
+                <Button onClick={()=>{
+                    googleLogout();
+                    setUserTokens(undefined);
+                    setRefreshToken(undefined);
+                    window.location.reload();
+                }} variant="destructive" >
+                    Вийти
+                </Button>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Додаткова інформація</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col gap-4">
+                    <span>
+                    ExpiryDate: {new Date(userTokens?.expiry_date).toLocaleString()}
+                    </span>
+                    <Button variant="destructive" onClick={()=>{
+                        const oldTokens = {...userTokens};
+                        oldTokens.access_token = 'asdfkjasdfljksjkadlflkj';
+                        setUserTokens(oldTokens);
+                    }}>
+                        <Trash className="mr-2 h-4 w-4"/>Видалити acess токен
+                    </Button>
+                    <Button onClick={()=>refreshAceessToken()}
+                    >
+                        <DownloadCloud className="mr-2 h-4 w-4" />Оновити токен
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+        <Card className="col-span-2">
+            <CardHeader>
+                <CardTitle>Дев інформація</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 grid-cols-2">
+                {
+                  userFiles.files?.map((file:FileInfo) => (
+                    <Card key={file.id}>
+                      <CardHeader>
+                        <CardTitle>
+                          {file.name}
+                        </CardTitle>
+                        <CardDescription className="break-all">
+                          {file.id}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex gap-2 flex-wrap">
+
+                        <Button size="icon" variant="destructive"
+                          onClick={()=>{
+                            deleteFile(file.id);
+                          }}>
+                          <Trash/>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))
+                }
+                
+            </CardContent>
+        </Card>
+        
+        
+    </div>
+}
+const pages = [
+    {title: "Account", component: <AccountSettings/>},
+    {title: "Appearance", component: <div>Вигляд</div>},
+    {title: "Data", component: <DataSettings/>},
+];
+const SettingsPage = () => {
+    const {t} = useTranslation();
+    const [currentPage, setCurrentPage] = useState(0);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4">
+        <div className="sm:col-span-4">
+            <TypographyH1>{t("Settings")}</TypographyH1>
+        </div>
+        <div className="col-span-1">
+            <div className="flex sm:flex-col gap-2">
+                {pages.map((page,index)=>(
+                    <Button key={index} className="justify-start" variant={currentPage === index ? "secondary" : "ghost"}
+                    onClick={()=>setCurrentPage(index)}>{t(page.title)}</Button>
+                ))}
+            </div>
+        </div>
+        <div className="sm:col-span-3">
+            {pages[currentPage].component}
+        </div>
+    </div>
+  )
+}
+
+
 
 export default SettingsPage

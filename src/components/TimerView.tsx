@@ -1,4 +1,4 @@
-import {  useContext, useState } from 'react';
+import {  useContext, useMemo, useState } from 'react';
 import {Timer,TimerDates,} from '../App';
 import localforage from 'localforage';
 import { useEffect } from 'react';
@@ -57,7 +57,9 @@ import { TimerContext } from '@/contexts/TimerContext';
 import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { ElapsedTime } from '@/hooks/useTimer';
-import { Circle, CircleDot, Maximize, Pause, Play, Settings } from 'lucide-react';
+import { Circle, CircleDot, Maximize, Pause, Pencil, Play, Settings, Trash } from 'lucide-react';
+import { GoogleContext } from '@/contexts/GoogleContext';
+import { useTranslation } from 'react-i18next';
 
 const TimerView = () => {
     const {
@@ -71,6 +73,7 @@ const TimerView = () => {
         deleteTimer,
         setIsZenMode
     } = useContext(TimerContext);
+    const {t} = useTranslation();
     const params = useParams();
     const id = params?.id as string;
     
@@ -138,7 +141,7 @@ const TimerView = () => {
     
     const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
-    
+    const {syncWithGoogleDrive} = useContext(GoogleContext);
    
 
     return currentTimer ? (
@@ -163,14 +166,14 @@ const TimerView = () => {
                         <DropdownMenuGroup>
                         <DialogTrigger asChild>
                         <DropdownMenuItem>  
-                            <span>Редагувати</span>
+                            <Pencil className="mr-2 h-3 w-3"/>
+                            <span>{t("Edit")}</span>
                         </DropdownMenuItem>
                         </DialogTrigger>
                         <AlertDialogTrigger asChild>
-                            <DropdownMenuItem>
-                                
-                                    <span className=" text-red-800 dark:text-red-400">Видалити</span>
-                                
+                            <DropdownMenuItem className=" text-red-800 dark:text-red-400">
+                                <Trash className="mr-2 h-3 w-3"/>
+                                {t("Delete")}
                             </DropdownMenuItem>
                         </AlertDialogTrigger>
                         </DropdownMenuGroup>
@@ -178,30 +181,30 @@ const TimerView = () => {
                 </DropdownMenu>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                        <AlertDialogTitle>Ви впевнені ?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("Are you sure?")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Видалення таймера не може бути відмінено . 
+                            {t("Timer delete desc")}
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                        <AlertDialogCancel>Відміна</AlertDialogCancel>
+                        <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
                         <AlertDialogAction onClick={()=>{
                             if(currentId === selectedTimerID){
                                 unselectTimer();
                             }
                             deleteTimer(currentId);
                             navigate('/')
-                        }}>Видалити</AlertDialogAction>
+                        }}>{t("Delete")}</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                     <DialogContent >
                         <DialogHeader>
-                            <DialogTitle>Редагувати таймер</DialogTitle>
+                            <DialogTitle>{t("Edit timer title")}</DialogTitle>
                             <DialogDescription>
-                                Тут ви можете змінити назву таймера та інші параметри
+                                {t("Edit timer desc")}
                             </DialogDescription>
                         </DialogHeader>
-                        <Label htmlFor='name'>Назва таймера</Label>
+                        <Label htmlFor='name'>{t("Edit timer name")}</Label>
                         <Input 
                             id="name"
                             value={renameInput}
@@ -211,7 +214,8 @@ const TimerView = () => {
                                 setTimers({...timers,[currentId]:{...currentTimer,name:renameInput, totalTime: currentTimer?.totalTime || 0}});
                                 setEditDialogOpen(false);
                                 setRenameInput('');
-                            }}>Зберегти значення</Button>
+                                syncWithGoogleDrive(true);
+                            }}>{t("Edit timer save")}</Button>
                         </DialogFooter>
                             
                     </DialogContent>
@@ -220,8 +224,8 @@ const TimerView = () => {
             </div>
             <Tabs defaultValue="main" className="flex flex-col w-full justify-center items-center relative">
             <TabsList >
-                <TabsTrigger value="main">Основна інформація</TabsTrigger>
-                <TabsTrigger value="details">Детальніше</TabsTrigger>
+                <TabsTrigger value="main">{t("timers tab1")}</TabsTrigger>
+                <TabsTrigger value="details">{t("timers tab2")}</TabsTrigger>
             </TabsList>
             <TabsContent value="main" className='w-full'>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 h-full mt-4 ">
@@ -230,7 +234,7 @@ const TimerView = () => {
                         <CardTitle>
                         {getNumbersBySeconds(currentTimer?.totalTime, additionalSeconds)}
                         </CardTitle>
-                        <CardDescription>Часу витрачено</CardDescription>
+                        <CardDescription>{t("Dashboard timeElapsed")}</CardDescription>
                     </CardHeader>
                     </Card>
                     <Card className='order-3 sm:col-span-2 lg:order-none lg:col-span-1'>
@@ -276,13 +280,13 @@ const TimerView = () => {
                         <CardTitle>
                         {getNumbersBySeconds(allDatesMedium)}
                         </CardTitle>
-                        <CardDescription>В середньому на день</CardDescription>
+                        <CardDescription>{t("timers average")}</CardDescription>
                     </CardHeader>
                     </Card>
                     
                     <Card className=" lg:col-span-3 order-3 sm:col-span-2">
                     <CardHeader>
-                        <CardDescription>Загальна активність</CardDescription>
+                        <CardDescription>{t("timers activity")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={356}>
@@ -328,8 +332,8 @@ const TimerView = () => {
         </div>
     ) : (
         <div className="flex flex-col gap-4 items-center justify-center min-h-32 w-full">
-            <TypographyLead>Таймер не знайдено...</TypographyLead>
-            <Link to="/">Повернутися на головну</Link>
+            <TypographyLead>{t("timer notFound")}</TypographyLead>
+            <Link to="/">{t("back to main")}</Link>
         </div>
     
     )
@@ -338,13 +342,17 @@ type DetailsViewProps = {
     currentTimerDate:TimerDates,
     additionalSeconds:ElapsedTime
 }
+
 const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     const today = new Date(new Date().setHours(0, 0, 0, 0));
     const [viewRange, setViewRange] = useState<DateRange | undefined>({
         from:today,
         to:today
     });
-    
+    const {t, i18n } = useTranslation();
+    const locale = useMemo(() => {
+        return i18n.language==="ua" ? { locale: uk }: undefined
+        }, [i18n.language]);
 
     const startDate = viewRange?.from || today;
 
@@ -370,15 +378,15 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                     onSelect={setViewRange}
                     numberOfMonths={2}
                     className="rounded-md border lg:row-span-3 lg:col-span-2 items-center justify-center flex "
-                    locale={uk}
+                    {...locale}
                 />
                 <Card >
                     <CardHeader>
                         <CardTitle>
-                            Період
+                            {t("Range")}
                         </CardTitle>
                         <CardDescription>
-                            {format(startDate,'d MMMM yyyy', { locale: uk })} - {format(endDate,'d MMMM yyyy', { locale: uk })}
+                            {format(startDate,'d MMMM yyyy',locale)} - {format(endDate,'d MMMM yyyy',locale)}
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -387,7 +395,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                     <CardTitle>
                     {getNumbersBySeconds(rangeTotal)}
                     </CardTitle>
-                    <CardDescription>Часу витрачено</CardDescription>
+                    <CardDescription>{t("Dashboard timeElapsed")}</CardDescription>
                 </CardHeader>
                 </Card>
                 <Card>
@@ -395,13 +403,13 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                     <CardTitle>
                     {getNumbersBySeconds(rangeMedium)}
                     </CardTitle>
-                    <CardDescription>В середньому</CardDescription>
+                    <CardDescription>{t("Average")}</CardDescription>
                 </CardHeader>
                 </Card>
                 
                 <Card className="lg:col-span-3 mb-8">
                 <CardHeader>
-                    <CardDescription>Активність в цей період</CardDescription>
+                    <CardDescription>{t("activity on range")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={356}>

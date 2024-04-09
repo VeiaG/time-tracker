@@ -1,6 +1,6 @@
 import { ElapsedTime } from "@/hooks/useTimer";
-
-
+import i18next from "../i18n";
+const t = i18next.t;
 
 type TimerDates = {
     [key:string]:number
@@ -87,19 +87,19 @@ const getStyledStringByTimerObject = (miliseconds:number | undefined =0,seconds?
 const getStringByTimerObject = (timerObject:{days?:number,hours?:number,minutes?:number,sec?:number}) => {
    let string ='';
      if(timerObject.days ){
-          string += timerObject.days + ' дн.';
+          string += timerObject.days + t("Time day");
      }
     if(timerObject.hours){
-        string += timerObject.hours + ' год.';
+        string += timerObject.hours + t("Time hour");
     }
     if(timerObject.minutes){
-        string += timerObject.minutes + ' хв.';
+        string += timerObject.minutes + t("Time minute");
     }
-    if(timerObject.sec ){
-        string += timerObject.sec + ' сек.';
+    if(timerObject.sec  ){
+        string += timerObject.sec + t("Time second");
     }
     if(timerObject.sec === 0 && !string){
-        string  += timerObject.sec + ' сек.';
+        string  += timerObject.sec + t("Time second");
     }
     return string;
 }

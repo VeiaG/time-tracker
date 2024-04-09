@@ -1,4 +1,4 @@
-import {useState,useEffect} from 'react';
+import {useState,useEffect, useCallback} from 'react';
 import Sidebar from './components/Sidebar'
 import TimerView from './components/TimerView'
 import Content from './components/Content';
@@ -52,9 +52,58 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleContext } from './contexts/GoogleContext';
+import useGoogleUserInfo from './hooks/useGoogleUserInfo';
+import useGoogleDrive from './hooks/useGoogleDrive';
+import useInterval from './hooks/useInterval';
 
-
+export type UserTokens = {
+  access_token:string,
+  expiry_date:number,
+  id_token:string,
+  scope:string,
+  token_type:string,
+}
+export type SyncOption = {
+  type : 'done' | 'sync' | 'error',
+  message:string,
+}
 function App() {
+
+
+  const [userTokens, setUserTokens] = useLocalForage<UserTokens>('userTokens', null);
+  const [refreshToken, setRefreshToken] = useLocalForage<string | null>('refreshToken',null);
+  const userData = useGoogleUserInfo(userTokens?.access_token || '',()=>{
+    console.error('Unauthorized with token: ' + userTokens?.access_token);
+    // console.log('refreshing token');
+    refreshAceessToken();
+  });
+
+  const [userFiles,createFile, openFile, deleteFile, editFile,refreshFiles] = useGoogleDrive(userTokens?.access_token || '');
+  
+  const [currentSyncOption,setCurrentSyncOption] = useState<SyncOption>({type:'sync',message:''});
+  const [isSyncedOnPageOpen,setIsSyncedOnPageOpen] = useState(false);
+  //google auth & other methods
+ 
+
+  const refreshAceessToken = useCallback(async () => {
+    const response = await fetch('http://localhost:3001/auth/google/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ refresh_token: refreshToken})
+    });
+    const tokens = await response.json();
+    // console.log('NEW TOKEN FROM REFRESH',tokens);
+    setUserTokens(tokens);
+  }  ,[refreshToken,setUserTokens]);
+
+ 
+  
+ 
+  //rest of app
   const [timers,setTimers] = useLocalForage<AllTimers>('timers',{});
   
   const [currentTimerDate,setCurrentTimerDate] = useState<TimerDates>({});
@@ -64,13 +113,129 @@ function App() {
   const [currentID,setCurrentID] = useState<string | undefined>(undefined);
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
-  const [isZenMode,setIsZenMode] = useLocalForage<boolean>('zenmode',false);
+  const [isZenMode,setIsZenMode] = useLocalForage<boolean>('zenmode',false,);
 
   const [isTutorialOpened,setIsTutorialOpened] = useState(false);
 
 
   const [isSidebarOpened,setIsSidebarOpened] = useState(false);
-  
+
+
+  const timerCallback =useCallback(async (timeElapsed:[{ day: string; ms: number }])=>{
+    // const newDate = new Date();
+
+    // const dateString = newDate.toDateString();
+    const newTimerDate = {...currentTimerDate};
+    let sumOfTime = 0;
+
+    timeElapsed.forEach((time) => {
+        if(newTimerDate[time.day]){
+            newTimerDate[time.day] += time.ms;
+        }
+        else{
+            newTimerDate[time.day] = time.ms;
+        }
+        sumOfTime += time.ms;
+    });
+    const newTimers = {...timers};
+
+    if(currentID){
+      newTimers[currentID].totalTime += sumOfTime;
+    }
+    setCurrentTimerDate(newTimerDate);
+    
+
+    if(currentID){
+      await localforage.setItem(currentID,newTimerDate);
+    }
+    await setTimers(newTimers);
+    await syncWithGoogleDrive(true);
+    return;
+  },[currentTimerDate,currentID,timers,setTimers])
+
+  const [startTimer,stopTimer,isPaused,seconds,setTimerLocalForage] = useTimer(timerCallback);
+
+  const syncWithGoogleDrive = async (writeOnly:boolean = false) => {
+    if(userTokens){
+      // console.log('try to check for token expiry 😪');
+      await checkForTokenExpiry();
+    }
+    setCurrentSyncOption({type:'sync',message:'Syncing with Google Drive...'});
+    // console.log('syncing with google drive 😣😏😶😑' ,refreshToken,userFiles)
+    if(!refreshToken ) return setCurrentSyncOption({type:'error',message:'No refresh token found'});
+    //check if userFiles exist
+    if(!userFiles.files){
+      return setCurrentSyncOption({type:'error',message:'No user files found'});
+    }
+    
+    
+
+    // console.log('user files and refresh token exist , syncing with google drive')
+
+    const saveObj = {}
+    await localforage.iterate((value, key) =>{
+        if(key !== 'userTokens' && key !== 'refreshToken'){
+          saveObj[key] = value;
+        }
+    }).then(()=> {
+        // console.log(saveObj);
+    });
+    const stringifiedSaveObj = JSON.stringify(saveObj);
+    //check if file timers.json exist
+    const file = userFiles.files.find((file) => {
+      return file.name === 'timers.json'
+    });
+    
+    if(!file){
+      await createFile('timers.json',stringifiedSaveObj);
+    }
+    if(writeOnly){
+      await editFile(file.id,stringifiedSaveObj);
+
+      setCurrentSyncOption({type:'done',message:'Synced with Google Drive'});
+      return;
+    }
+    if(file){
+      await openFile(file.id,async (content) => {
+        // console.log('Content from file ',file,'is ',content)
+        if(content !== stringifiedSaveObj){
+          const syncedSave = JSON.parse(content);
+          //merge localforage data with google drive data
+          syncedSave['timers'] = {...saveObj?.['timers'],...syncedSave?.['timers']};
+          
+          for (const key in syncedSave) {
+            if (Object.prototype.hasOwnProperty.call(syncedSave, key)) {
+              const element = syncedSave[key];
+                switch (key) {
+                  case 'timers':
+                    setTimers(element);
+                    break;
+                  case 'zenmode':
+                    setIsZenMode(element);
+                    break;
+                  case 'selectedTimerID':
+                    setSelectedTimerID(element);
+                    break;
+                  case 'currentTimer':
+                    setTimerLocalForage(element);
+                    break;
+                  default:
+                    await localforage.setItem(key, element);
+                    break;
+                }
+            } 
+         }
+        }
+        else{
+          // console.log('data in g-drive same as in localforage');
+        }
+      });
+      setCurrentSyncOption({type:'done',message:'Synced with Google Drive'});
+    }
+    // console.log('first sync ended');
+    setIsSyncedOnPageOpen(true);
+  }
+
   useEffect(() => {
       if(selectedTimerID && timers){
           setCurrentID(selectedTimerID);
@@ -87,37 +252,7 @@ function App() {
   },[selectedTimerID,timers,setCurrentTimerDate]);
 
 
-  const timerCallback =async (timeElapsed:[{ day: string; ms: number }])=>{
-      // const newDate = new Date();
-
-      // const dateString = newDate.toDateString();
-      const newTimerDate = {...currentTimerDate};
-      let sumOfTime = 0;
-
-      timeElapsed.forEach((time) => {
-          if(newTimerDate[time.day]){
-              newTimerDate[time.day] += time.ms;
-          }
-          else{
-              newTimerDate[time.day] = time.ms;
-          }
-          sumOfTime += time.ms;
-      });
-      const newTimers = {...timers};
-
-      if(currentID){
-        newTimers[currentID].totalTime += sumOfTime;
-      }
-      setCurrentTimerDate(newTimerDate);
-      
-
-      if(currentID){
-        await localforage.setItem(currentID,newTimerDate);
-      }
-      await setTimers(newTimers);
-      return;
-    }
-  const [startTimer,stopTimer,isPaused,seconds] = useTimer(timerCallback);
+  
 
   const unselectTimer = async (id?:string ) => {
     if(!isPaused){
@@ -128,14 +263,18 @@ function App() {
       setCurrentTimerDate({});
     }
     setSelectedTimerID(id || '');
+    await syncWithGoogleDrive(true);
   }
 
   const toggleTimer = (id:string) => {
+    const syncedStartTimer = startTimer(async ()=>{
+      await syncWithGoogleDrive(true);
+    })
     if(isPaused){
       if(id !== selectedTimerID){
         setSelectedTimerID(id);
       }
-      startTimer();
+      syncedStartTimer
     }
     else{
       if(id === selectedTimerID){
@@ -144,7 +283,7 @@ function App() {
       else{
         stopTimer();
         setSelectedTimerID(id);
-        startTimer();
+        syncedStartTimer
       }
     }
   }
@@ -156,6 +295,7 @@ function App() {
     }
     setTimers({...timers,[id]:newTimer});
     localforage.setItem(id,{[new Date().toDateString()]:0});
+    syncWithGoogleDrive(true);
   }
   const deleteTimer =async (id:string) => {
     
@@ -170,12 +310,70 @@ function App() {
     }
     await localforage.removeItem(id);
     setTimers(newTimers);
+    await syncWithGoogleDrive(true);
   }
+  const checkForTokenExpiry = useCallback(async() => {
+    if(userTokens){
+      const now = new Date().getTime();
+      if(now >= userTokens.expiry_date){
+        // console.log('Token expired');
+        if(refreshToken){
+          await refreshAceessToken();
+        }
+      }
+    }
+  },[userTokens,refreshToken,refreshAceessToken]);
+  useEffect(() => {
+    if(!isSyncedOnPageOpen && userTokens && userFiles){ 
+      const func = async()=>{
+        // console.log('syncing with google drive on page open')
+        await syncWithGoogleDrive();
+      }
+      func();
+    }
+  },[userTokens,userFiles,isSyncedOnPageOpen]);
+  //check if syncing now on page close and inform user if syncing is in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if(currentSyncOption.type === 'sync'){
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    }
+    window.addEventListener('beforeunload',handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload',handleBeforeUnload);
+    }
+  },[currentSyncOption]);
+
+  const [syncPeriod,setSyncPeriod] = useLocalForage<number>('syncPeriod',5*60*1000);
+  //sync with google drive every 5 minutes
+  useInterval(()=>{
+    // console.log('😡👿syncing with google drive every 5 minutes')
+    syncWithGoogleDrive();
   
+  },syncPeriod);
+  
+
   
   return (
       <div className="min-h-dvh h-dvh max-h-dvh relative box-border   ">
-       
+        <GoogleOAuthProvider clientId='639924263282-u23hu74l54qpr261bj77cfivcveto81u.apps.googleusercontent.com'>
+        <GoogleContext.Provider value={
+          {
+            userTokens,
+            setUserTokens,
+            refreshToken,
+            setRefreshToken,
+            refreshAceessToken,
+            userData,
+            userFiles,createFile, openFile, deleteFile, editFile,refreshFiles,
+            currentSyncOption,
+            setCurrentSyncOption,
+            syncWithGoogleDrive,
+            setSyncPeriod,
+          }
+        }>
         <MobileContext.Provider value={
           {
             isSidebarOpened,
@@ -236,8 +434,8 @@ function App() {
             </DialogContent>
           </Dialog>
           <TutorialDialog open={isTutorialOpened} onOpenChange={setIsTutorialOpened}/>
-
         <BrowserRouter> 
+         
           <Navigation />
           <SpeedInsights/>
           <Analytics/>
@@ -273,6 +471,8 @@ function App() {
        
        </TimerContext.Provider>
        </MobileContext.Provider>
+       </GoogleContext.Provider>
+       </GoogleOAuthProvider>
       </div>
   )
 }

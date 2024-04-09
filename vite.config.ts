@@ -6,11 +6,16 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({ 
-
+      workbox: {
+        navigateFallbackDenylist: [ /^https:\/\/www\.googleapis\.com/
+      ]
+      },
+      
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg'],
       devOptions: {
-        enabled: true
+        enabled: true,
+        suppressWarnings: true
       },
       manifest: {
         name: 'TimerApp',

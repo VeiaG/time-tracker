@@ -12,11 +12,15 @@ type BreadcrumbsMenuProps = {
 }
 import { useLocation } from "react-router-dom"
 import { Fragment } from "react"
-const pages = {
-    settings:"Налаштування",
-    about:"Про застосунок",
-}
+import { useTranslation } from "react-i18next"
+
 const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
+    const {t} = useTranslation();
+    const pages = {
+        settings:t("Settings"),
+        about:t("About"),
+    }
+
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);
     return (
@@ -26,7 +30,7 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
                     <BreadcrumbLink asChild>
                         <Link to="/" className="text-sm">
                             <span>
-                            Головна
+                                {t("Main")}
                             </span>
                         </Link>
                     </BreadcrumbLink>

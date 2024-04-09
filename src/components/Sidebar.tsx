@@ -12,8 +12,10 @@ import { getNumbersBySeconds } from "@/lib/timeUtils";
 import { Separator } from "@/components/ui/separator"
 import { MobileContext } from "@/contexts/MobileContext";
 import { Pause, Play, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const SideBar = () => {
+    const {t} = useTranslation();
     const {timers,selectedTimerID,isPaused,seconds,toggleTimer} = useContext(TimerContext);
     const {
         isSidebarOpened,
@@ -34,7 +36,7 @@ const SideBar = () => {
                         }} >
                         <h2 className=" font-bold text-xl truncate max-w-48 ">{timer.name}</h2>
                         <p  className=" text-muted-foreground truncate max-w-48">
-                            Час: {getNumbersBySeconds(timer.totalTime,(isCurrent ? seconds : undefined))}
+                            {t("Time")}: {getNumbersBySeconds(timer.totalTime,(isCurrent ? seconds : undefined))}
                         </p>
                     </div>
                     <Button size="icon" className="aspect-square "
@@ -63,11 +65,11 @@ const SideBar = () => {
     }>
         
         
-        <TypographyH3>Усі таймери:</TypographyH3>
+        <TypographyH3>{t("Sidebar allTimers")}</TypographyH3>
         <div className="relative mr-4">
             <Search size={16}
                 className="absolute left-3 top-3 text-gray-500 dark:text-gray-400" />
-            <Input placeholder="Пошук" className="pl-8" onChange={(e)=>{setSearchInput(e.target.value)}}></Input>
+            <Input placeholder={t("Sidebar search")} className="pl-8" onChange={(e)=>{setSearchInput(e.target.value)}}></Input>
         </div>
        
         <ScrollArea className="flex-grow h-[calc(100dvh-16rem)] relative w-full " >
@@ -75,7 +77,7 @@ const SideBar = () => {
                 {filteredTimers.length>0 ? <>
                     <Separator/>
                     {filteredTimers}
-                </> : <p className="text-muted-foreground">Таймерів не знайдено.</p>}
+                </> : <p className="text-muted-foreground">{t("Sidebar noTimers")}</p>}
             </div>
         </ScrollArea>
     </div>
