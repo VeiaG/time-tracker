@@ -90,7 +90,7 @@ const Navigation = () => {
                 <Home size={16} strokeWidth={3}/>
               </Link>
             </Button>
-            <Button onClick={()=>syncWithGoogleDrive(true)} variant="ghost" size="icon" 
+            <Button onClick={()=>syncWithGoogleDrive()} variant="ghost" size="icon" 
             className={cn(`fixed z-20 right-4 top-4 sm:right-auto sm:top-auto sm:z-auto sm:relative
             `,!userTokens ?"hidden":"")}>
               {
