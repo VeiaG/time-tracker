@@ -5,7 +5,7 @@ import { initReactI18next } from "react-i18next";
 // (tip move them in a JSON file and import them,
 // or even better, manage them separated from your code: https://react.i18next.com/guides/multiple-translation-files)
 const resources = {
-  ua: {
+  uk: {
     translation: {
       "EmptyDashboard:no timer selected": "Таймер не обрано",
       "EmptyDashboard:no timer description": "Створіть новий таймер або оберіть існуючий з бокового меню.",
@@ -24,7 +24,7 @@ const resources = {
       "Time day" : " дн. ",
       "Time hour" : " год. ",
       "Time minute" : " хв. ",
-      "Time second" : " сек. ",
+      "Time second" : " с.",
       "Main" : "Головна",
       "Settings": "Налаштування",
       "About": "Про застосунок",
@@ -88,6 +88,19 @@ const resources = {
       "delete desc": "Видалення всіх даних збережених на цьому пристрої.",
       "delete all": "Видалити дані",
       "delete modal": "Ви впевнені що хочете видалити усі дані?",
+      "delete modal2": "Ви впевнені що хочете видалити усі дані з Google Диску?",
+      "Sign in with Google": "Увійти через Google",
+      "Sign out": "Вийти",
+      "signed in" : "Ви увійшли як {{value}}",
+      "not signed in": "Вхід не виконано",
+      "sync with g": "Синхронізація з аккаунтом Google",
+      "sync settings title": "Налаштування синхронізації",
+      "sync settings desc": "Тут ви можете налаштувати період автоматичної синхронізації",
+      "sync every": "Синхронізувати кожні",
+      "sync delete": "Видалити усі дані з Google Drive",
+      "appearance title": "Налаштування вигляду",
+      "appearance desc": "Тут ви можете змінити тему та мову застосунку",
+      "lang": "Мова",
     }
   },
   en: {
@@ -109,7 +122,7 @@ const resources = {
       "Time day" : " d. ",
       "Time hour" : " h. ",
       "Time minute" : " min. ",
-      "Time second" : " sec. ",
+      "Time second" : " s.",
       "Main" : "Main",
       "Settings": "Settings",
       "About": "About app",
@@ -173,6 +186,19 @@ const resources = {
       "delete desc": "Delete all data stored on this device.",
       "delete all": "Delete data.",
       "delete modal": "Are you sure you want to delete all data?",
+      "delete modal2": "Are you sure you want to delete all data from Google Drive?",
+      "Sign in with Google": "Sign in with Google",
+      "Sign out": "Sign out",
+      "signed in": "You are signed in as {{value}}",
+      "not signed in": "You are not signed in",
+      "sync with g": "Synchronizing with Google account",
+      "sync settings title": "Synchronization settings",
+      "sync settings desc": "Here you can configure the period of automatic synchronization.",
+      "sync every": "Synchronize every",
+      "sync delete": "Remove all data from Google Drive",
+      "appearance title": "Appearance settings",
+      "appearance desc": "Here you can change the theme and language of the app.",
+      "lang": "Language",
     }
   }
 };

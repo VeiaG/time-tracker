@@ -6,9 +6,9 @@ import { UserFiles } from '@/hooks/useGoogleDrive';
 import { GetCallback } from '@/hooks/useGoogleDrive';
 type GoogleContextType = {
     userTokens: UserTokens,
-    setUserTokens: (userTokens:UserTokens) => void,
+    setUserTokens: (userTokens:UserTokens) => Promise<void>,
     refreshToken: string,
-    setRefreshToken: (refreshToken:string) => void,
+    setRefreshToken: (refreshToken:string) => Promise<void>,
     refreshAceessToken: () => void,
     userData: UserInfo,
     userFiles : UserFiles,
@@ -20,6 +20,7 @@ type GoogleContextType = {
     currentSyncOption : SyncOption,
     setCurrentSyncOption : (syncOption:SyncOption) => void,
     syncWithGoogleDrive : (writeOnly?:boolean) => Promise<void>,
+    syncPeriod : number,
     setSyncPeriod : (period:number) => void,
 };
 

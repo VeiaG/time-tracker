@@ -22,6 +22,8 @@ type TimerContextType = {
     isZenMode: boolean,
     setIsZenMode: (isZenMode:boolean) => void,
     setIsTutorialOpened: (isTutorialOpened:boolean) => void,
+    lang:string,
+    setLang: (lang:string) => void,
 };
 
 export const TimerContext = createContext<TimerContextType>({} as TimerContextType);

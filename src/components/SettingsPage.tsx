@@ -20,9 +20,75 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog"
 import { useGoogleLogin } from '@react-oauth/google';
 import { GoogleContext } from "@/contexts/GoogleContext"
-import { FileInfo } from "@/hooks/useGoogleDrive"
 import { useTranslation } from "react-i18next"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
+  
+import {Label} from "@/components/ui/label"
+import { TimerContext } from "@/contexts/TimerContext"
+import { useTheme } from "./themeProvider";
+const AppearanceSettings = ()=>{
+    const {t} = useTranslation();
+    const {lang,setLang} = useContext(TimerContext);
+    const languages = useMemo(()=>[
+        {value:"en",label:"English"},
+        {value:"uk",label:"Українська"}
+    ],[]);
+    const {theme,setTheme} = useTheme();
+    const themes = useMemo(()=>[
+        {value:"light",label:t("Light")},
+        {value:"dark",label:t("Dark")},
+        {value:"system",label:t("System")}
+    ],[t]);
 
+    return <div className="grid grid-cols-1 gap-4">
+        <Card>
+            <CardHeader>
+                <CardTitle>{t("appearance title")}</CardTitle>
+                <CardDescription>
+                    {t("appearance desc")}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center space-x-2">
+                <Label>{t("lang")} :</Label>
+                <Select value={lang} onValueChange={setLang}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Оберіть значення" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {
+                            languages.map((lang)=>(
+                                <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
+                            ))
+                        }
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+                <Label>{t("Theme")} :</Label>
+                <Select value={theme} onValueChange={setTheme}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Оберіть значення" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {
+                            themes.map((theme)=>(
+                                <SelectItem key={theme.value} value={theme.value}>{theme.label}</SelectItem>
+                            ))
+                        }
+                    </SelectContent>
+                </Select>
+            </div>
+            </CardContent>
+        </Card>
+    </div>
+}
 const DataSettings = ()=>{
     const {
         syncWithGoogleDrive
@@ -192,6 +258,8 @@ const AccountSettings = ()=>{
         refreshAceessToken,
         userFiles,
         deleteFile,
+        syncPeriod,
+        setSyncPeriod
     } = useContext(GoogleContext);
     const {t} = useTranslation();
     
@@ -216,26 +284,87 @@ const AccountSettings = ()=>{
       scope:"https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile",
       flow: 'auth-code',
     });
-    
-    return <div className="grid gap-4 grid-cols-2">
+    const deleteAllData = async ()=>{
+         const mainFile = userFiles.files?.find((file)=>file.name === "timers.json");
+         if(mainFile){
+            await deleteFile(mainFile.id);
+            //exit from account
+            googleLogout();
+            await setUserTokens(undefined);
+            await setRefreshToken(undefined);
+            window.location.reload();
+         }
+    }
+    return <div className="grid gap-4 grid-cols-1 ">
         
         <Card>
             <CardHeader>
-                <CardTitle>Ввійдено як {userData?.name}</CardTitle>
+                <CardTitle>{userData?.name ? t("signed in",{value:userData?.name}) : t("not signed in")}</CardTitle>
+                <CardDescription>{t("sync with g")}</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button onClick={googleLogin} variant="outline">Увійти через Google</Button>
-                <Button onClick={()=>{
-                    googleLogout();
-                    setUserTokens(undefined);
-                    setRefreshToken(undefined);
-                    window.location.reload();
-                }} variant="destructive" >
-                    Вийти
-                </Button>
+                {
+                    !userTokens ?
+                    <Button onClick={googleLogin} variant="outline">{t("Sign in with Google")}</Button> :
+                    <Button onClick={async ()=>{
+                        googleLogout();
+                        await setUserTokens(undefined);
+                        await setRefreshToken(undefined);
+                        window.location.reload();
+                    }} variant="destructive" >
+                        {t("Sign out")}
+                    </Button>
+                }
+                
             </CardContent>
         </Card>
+        
         <Card>
+            <CardHeader>
+                <CardTitle>{t("sync settings title")}</CardTitle>
+                <CardDescription>{t("sync settings desc")}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2 items-start">
+            <div className="flex items-center space-x-2">
+                <Label>{t("sync every")} :</Label>
+                <Select value={syncPeriod.toString()} onValueChange={(value)=>setSyncPeriod(+value)}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Оберіть значення" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="2">2 {t("Time minute")}</SelectItem>
+                        <SelectItem value="5">5 {t("Time minute")}</SelectItem>
+                        <SelectItem value="10">10 {t("Time minute")}</SelectItem>
+                        <SelectItem value="15">15 {t("Time minute")}</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {t("sync delete")}
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{t("delete all")}</AlertDialogTitle>
+                            <AlertDialogDescription>{t("delete modal2")}</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel >
+                                {t("Cancel")}
+                            </AlertDialogCancel>
+                            <AlertDialogAction onClick={deleteAllData} >
+                                {t("Delete")}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            
+            </CardContent>
+        </Card>
+        {/* <Card>
             <CardHeader>
                 <CardTitle>Додаткова інформація</CardTitle>
             </CardHeader>
@@ -258,7 +387,7 @@ const AccountSettings = ()=>{
                 </div>
             </CardContent>
         </Card>
-        <Card className="col-span-2">
+        <Card >
             <CardHeader>
                 <CardTitle>Дев інформація</CardTitle>
             </CardHeader>
@@ -288,14 +417,14 @@ const AccountSettings = ()=>{
                 }
                 
             </CardContent>
-        </Card>
+        </Card> */}
         
         
     </div>
 }
 const pages = [
     {title: "Account", component: <AccountSettings/>},
-    {title: "Appearance", component: <div>Вигляд</div>},
+    {title: "Appearance", component: <AppearanceSettings/>},
     {title: "Data", component: <DataSettings/>},
 ];
 const SettingsPage = () => {

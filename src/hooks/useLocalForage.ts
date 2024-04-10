@@ -2,7 +2,10 @@
 import localforage from "localforage";
 import {  useEffect, useState} from "react";
 
-export const useLocalForage = <T>(key: string,initialState:T,callback?:(value:T)=>void) => {
+type UseLocalForageReturnType<T> = [T, (newState: T) => Promise<void>];
+
+
+export const useLocalForage = <T>(key: string,initialState:T,callback?:(value:T)=>void):UseLocalForageReturnType<T> => {
     const [state,setState] = useState<T>(initialState);
     useEffect(() => {
         localforage.getItem<T>(key).then((data) => {
@@ -19,8 +22,8 @@ export const useLocalForage = <T>(key: string,initialState:T,callback?:(value:T)
         if(callback){
             callback(newState);
         }
-        return localforage.setItem(key,newState);
-        
+        await localforage.setItem(key,newState);
+        return;
     }
    
     
