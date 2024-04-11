@@ -71,9 +71,9 @@ const useTimer = (onStop : (timeElapsed: ElapsedTime)=>Promise<void> ) =>{
         setIsPaused(!currentTimer.start);
     },[currentTimer.start]);
     
-    const startTimer = useCallback((callback?: ()=>Promise<void>)=>{
+    const startTimer = useCallback(async(callback?: ()=>Promise<void>)=>{
         const newDate = Date.now();
-        setCurrentTimer({start:newDate});
+        await setCurrentTimer({start:newDate});
         if(callback){
             callback();
         }

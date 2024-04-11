@@ -270,14 +270,15 @@ function App() {
   }
 
   const toggleTimer = (id:string) => {
-    const syncedStartTimer = startTimer(async ()=>{
+    const syncedStartTimer =async ()=>{
       await syncWithGoogleDrive(true);
-    })
+    }
+     
     if(isPaused){
       if(id !== selectedTimerID){
         setSelectedTimerID(id);
       }
-      syncedStartTimer
+      startTimer(syncedStartTimer)
     }
     else{
       if(id === selectedTimerID){
@@ -286,7 +287,7 @@ function App() {
       else{
         stopTimer();
         setSelectedTimerID(id);
-        syncedStartTimer
+        startTimer(syncedStartTimer)
       }
     }
   }
