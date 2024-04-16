@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Input } from "@/components/ui/input";
 
 import {
@@ -101,6 +101,7 @@ const Navigation = () => {
             </Button>
             <Popover open={isOpen} onOpenChange={setOpen} modal>
               <PopoverTrigger asChild>
+                
                 <Button  variant="outline" className="
                 w-10 h-10 px-0 
                 lg:px-4  lg:w-auto sm:rounded-md
@@ -140,14 +141,14 @@ const AvatarMenu = ()=>{
     
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer">
+      <DropdownMenuTrigger >
+      <Avatar className="cursor-pointer">
           <AvatarImage src={userData?.picture || ""} />
           <AvatarFallback >
               {userData?.name ?
                   userData.name.split(" ").map((word)=>word[0]).join("")
                   :
-                  <CircleUserRound size={24} strokeWidth={2} />
+                  <CircleUserRound size={24} strokeWidth={2} /> 
               }
               
           </AvatarFallback>

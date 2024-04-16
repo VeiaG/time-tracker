@@ -574,7 +574,7 @@ const TutorialDialog = ({open,onOpenChange}:TutorialDialogProps)=>{
 
 const Footer = ()=>{
   const {t} = useTranslation();
-  return <footer className="bg-card border-t py-2 w-full ">
+  return <footer className="bg-card border-t py-2 w-dvw ">
     <div className="container flex justify-between items-center sm:gap-4 flex-col sm:flex-row">
     <Button variant='link' asChild>
           <Link to='/about'>
