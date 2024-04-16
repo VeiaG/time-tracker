@@ -237,6 +237,7 @@ function App() {
       });
       setCurrentSyncOption({type:'done',message:'Synced with Google Drive'});
     }
+    setCurrentSyncOption({type:'done',message:'Synced with Google Drive'});
     // console.log('first sync ended');
     setIsSyncedOnPageOpen(true);
   }

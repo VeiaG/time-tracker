@@ -125,7 +125,8 @@ const useGoogleDrive = (access_token: string):useGoogleDriveType => {
     } else {
       console.error("Failed to delete file");
     }
-    fetchUserFiles(access_token, setUserFiles);
+    await fetchUserFiles(access_token, setUserFiles);
+    
   };
   //edit file by id
   const editFile = async (fileId: string, content: string) => {
