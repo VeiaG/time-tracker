@@ -341,7 +341,7 @@ const AccountSettings = ()=>{
             </div>
             <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button variant="destructive">
+                        <Button variant="destructive" disabled={!userTokens}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             {t("sync delete")}
                         </Button>
