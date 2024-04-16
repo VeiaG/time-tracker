@@ -431,7 +431,7 @@ const SettingsPage = () => {
     const {t} = useTranslation();
     const [currentPage, setCurrentPage] = useState(0);
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4 container">
         <div className="sm:col-span-4">
             <TypographyH1>{t("Settings")}</TypographyH1>
         </div>

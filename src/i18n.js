@@ -101,6 +101,18 @@ const resources = {
       "appearance title": "Налаштування вигляду",
       "appearance desc": "Тут ви можете змінити тему та мову застосунку",
       "lang": "Мова",
+      "privacy": "Політика конфіденційності",
+      "terms": "Умови використання",
+      "about1 title":"Вимірюйте час, досягайте результатів",
+      "about1 desc":"TimeTracker дає змогу точно вимірювати час, витрачений на виконання різних завдань, що дозволяє оптимізувати робочий процес і досягати більшого за менший час.",
+      "about1 badge":"Відстеження часу",
+      "about2 title": "Цінуйте кожну секунду",
+      "about2 desc": "Час - ваш найцінніший актив. Тож давайте використаємо його максимально ефективно.",
+      "about2 badge": "Продуктивність",
+      "about3 title":"Відстежуйте час за допомогою TimeTracker",
+      "about3 desc": "TimeTracker - це простий у використанні інструмент для створення таймерів і перегляду графіків використання по днях. Він дозволяє ефективно відстежувати свій час і переглядати середнє використання таймерів. Оптимізуйте свій час за допомогою TimeTracker вже сьогодні!",
+      "get started": "Почати",
+      "pick range": "Обрати період"
     }
   },
   en: {
@@ -199,6 +211,18 @@ const resources = {
       "appearance title": "Appearance settings",
       "appearance desc": "Here you can change the theme and language of the app.",
       "lang": "Language",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "about1 title":"Measure Time, Achieve Results",
+      "about1 desc":"TimeTracker enables you to accurately measure the time spent on various tasks, allowing you to optimize your workflow and achieve more in less time.",
+      "about1 badge":"Time Tracking",
+      "about2 title": "Make every second count",
+      "about2 desc": "Time is your most valuable asset. Let's make the most of it.",
+      "about2 badge": "Productivity",
+      "about3 title":"Track Time with TimeTracker",
+      "about3 desc": "TimeTracker is an easy-to-use tool for creating timers and viewing usage graphs by day. It allows you to effectively track your time and view average timer usage. Optimize your time with TimeTracker today!",
+      "get started": "Get started",
+      "pick range": "Pick range"  
     }
   }
 };

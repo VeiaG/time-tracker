@@ -2,7 +2,7 @@ import {useState,useEffect, useCallback} from 'react';
 import Sidebar from './components/Sidebar'
 import TimerView from './components/TimerView'
 import Content from './components/Content';
-import { Routes,Route } from 'react-router-dom';
+import { Routes,Route, Link } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Navigation from './components/Navigation';
 import { useLocalForage } from './hooks/useLocalForage';
@@ -58,6 +58,8 @@ import useGoogleUserInfo from './hooks/useGoogleUserInfo';
 import useGoogleDrive from './hooks/useGoogleDrive';
 import useInterval from './hooks/useInterval';
 import { useTranslation } from 'react-i18next';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
 
 export type UserTokens = {
   access_token:string,
@@ -366,7 +368,7 @@ function App() {
 
   
   return (
-      <div className="min-h-dvh h-dvh max-h-dvh relative box-border   ">
+      <div className="min-h-dvh h-dvh max-h-dvh relative box-border  ">
         <GoogleOAuthProvider clientId='639924263282-u23hu74l54qpr261bj77cfivcveto81u.apps.googleusercontent.com'>
         <GoogleContext.Provider value={
           {
@@ -418,66 +420,75 @@ function App() {
        }>
        
        <ThemeProvider>
-       <ScrollArea className="h-full max-h-full min-h-full relative box-border ">
+       <ScrollArea className="h-full max-h-full min-h-full relative box-border">
+        <div className="flex flex-col sm:pb-0 pb-16 min-h-dvh">
         <Toaster />
-          <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
-            <DialogContent className='h-dvh max-h-dvh max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
-              <div className='flex flex-col items-center justify-center gap-2'>
-                <div className='flex gap-2 items-center font-semibold lg:text-4xl'>
-                  <Clock size={32} strokeWidth={3}/>
-                  <span className="truncate max-w-32 lg:max-w-4xl">
-                    {currentTimer?.name || 'Щось пішло не так...' }
-                  </span>
-                </div >
-                <div className='font-bold mb-4 text-6xl lg:text-9xl'>
-                  {getStyledStringByTimerObject(currentTimer?.totalTime, seconds) || '00:00:00'}
-                </div>
-                <Button size="lg" className='px-8 py-6 '
-                    onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
-                    disabled={!selectedTimerID}
-                  >
-                    {isPaused? 
-                      <Play size={16} strokeWidth={4} fill="currentColor" /> : 
-                      <Pause size={16} strokeWidth={2} fill="currentColor"/>
-                    }
-                  </Button>
+        <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
+          <DialogContent className='h-dvh max-h-dvh max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
+            <div className='flex flex-col items-center justify-center gap-2'>
+              <div className='flex gap-2 items-center font-semibold lg:text-4xl'>
+                <Clock size={32} strokeWidth={3}/>
+                <span className="truncate max-w-32 lg:max-w-4xl">
+                  {currentTimer?.name || 'Щось пішло не так...' }
+                </span>
+              </div >
+              <div className='font-bold mb-4 text-6xl lg:text-9xl'>
+                {getStyledStringByTimerObject(currentTimer?.totalTime, seconds) || '00:00:00'}
               </div>
-               
-            </DialogContent>
-          </Dialog>
-          <TutorialDialog open={isTutorialOpened} onOpenChange={setIsTutorialOpened}/>
+              <Button size="lg" className='px-8 py-6 '
+                  onClick={() => selectedTimerID && toggleTimer(selectedTimerID)}
+                  disabled={!selectedTimerID}
+                >
+                  {isPaused? 
+                    <Play size={16} strokeWidth={4} fill="currentColor" /> : 
+                    <Pause size={16} strokeWidth={2} fill="currentColor"/>
+                  }
+                </Button>
+            </div>
+              
+          </DialogContent>
+        </Dialog>
+        <TutorialDialog open={isTutorialOpened} onOpenChange={setIsTutorialOpened}/>
         <BrowserRouter> 
          
           <Navigation />
           <SpeedInsights/>
           <Analytics/>
-          <div className="container flex flex-col relative max-h-full h-full box-border pt-6 sm:pt-24">
+          <div className=" flex-grow flex flex-col relative box-border pt-6 sm:pt-24 ">
             <BreadcrumbsMenu timers={timers}/>
-          <div className="flex gap-4 relative grow">
+          <div className="flex gap-4 relative ">
           <Routes>
               <Route path="/about" element={<AboutPage />} />
               <Route path="/settings" element={<Content>
                 <SettingsPage />
               </Content>} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy/>} />
+              <Route path="/terms-of-service" element={<TermsOfService/>} />
               <Route path="/:id" element={
-                <>
+                <div className='container flex gap-4 relative  h-full'>
                   <Sidebar />
                   <Content>
                     <TimerView />
                   </Content> 
-                </>}/>
+                </div>}/>
               <Route path="/" element={
-                <>
+                <div className='container flex gap-4 relative h-full'>
                   <Sidebar/>
                   <Content>
                     <Dashboard />
                   </Content>
-                </>
+                </div>
               } />
           </Routes>
+          
           </div>
+          
           </div>
+          <Footer/>
         </BrowserRouter>
+        
+        </div>
+
         </ScrollArea>
         </ThemeProvider>
        
@@ -560,6 +571,31 @@ const TutorialDialog = ({open,onOpenChange}:TutorialDialogProps)=>{
   )
 }
 
+const Footer = ()=>{
+  const {t} = useTranslation();
+  return <footer className="bg-card border-t py-2 w-full ">
+    <div className="container flex justify-between items-center sm:gap-4 flex-col sm:flex-row">
+    <Button variant='link' asChild>
+          <Link to='/about'>
+            {t("About")}
+          </Link>
+        </Button>
+      <div className=" flex gap-4 items-center">
+        <Button variant='link' asChild className='text-wrap text-center'>
+          <Link to='/privacy-policy'>
+            {t("privacy")}
+          </Link>
+        </Button>
+        <Button variant='link' asChild className='text-wrap text-center'>
+          <Link to='/terms-of-service'>
+            {t("terms")}
+          </Link>
+        </Button>
+        
+      </div>
+    </div>
+  </footer>
+}
 export default App
 
 

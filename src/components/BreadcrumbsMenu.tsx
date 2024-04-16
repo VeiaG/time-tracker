@@ -19,12 +19,15 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
     const pages = {
         settings:t("Settings"),
         about:t("About"),
+        "privacy-policy":t("privacy"),
+        "terms-of-service":t("terms"),
+
     }
 
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);
     return (
-        <Breadcrumb>
+        <Breadcrumb className="container">
             <BreadcrumbList className="align-center">
                 <BreadcrumbItem>
                     <BreadcrumbLink asChild>

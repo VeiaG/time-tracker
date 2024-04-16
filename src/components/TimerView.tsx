@@ -24,6 +24,11 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
+  import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover";
 import { getNumbersBySeconds, getTimerDatesByRange ,round,getTimerDatesAll } from "@/lib/timeUtils";
 import { Input } from './ui/input';
 import { Label } from "@/components/ui/label"
@@ -57,7 +62,7 @@ import { TimerContext } from '@/contexts/TimerContext';
 import { uk } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { ElapsedTime } from '@/hooks/useTimer';
-import { Circle, CircleDot, Maximize, Pause, Pencil, Play, Settings, Trash } from 'lucide-react';
+import { CalendarCheck, Circle, CircleDot, Maximize, Pause, Pencil, Play, Settings, Trash } from 'lucide-react';
 import { GoogleContext } from '@/contexts/GoogleContext';
 import { useTranslation } from 'react-i18next';
 
@@ -148,8 +153,8 @@ const TimerView = () => {
         <div className="flex flex-col gap-4 items-start ">
             <div className="flex items-center justify-between w-full relative" >
                 <TypographyH1 className="w-full flex justify-center items-center">
-                    <div className=" max-w-64
-                    truncate lg:max-w-screen-sm text-center h-16 ">{currentTimer?.name}</div>
+                    <div className=" max-w-xs sm:max-w-sm lg:max-w-2xl
+                    truncate text-center h-16 ">{currentTimer?.name}</div>
                 </TypographyH1>
                 <Dialog onOpenChange={(open:boolean)=>{
                     if(!open){setRenameInput('') ;}
@@ -351,43 +356,64 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     });
     const {t, i18n } = useTranslation();
     const locale = useMemo(() => {
-        return i18n.language==="ua" ? { locale: uk }: undefined
-        }, [i18n.language]);
+        return i18n.language==="uk" ? { locale: uk }: {}
+    }, [i18n.language]);
+    const startDate = useMemo(() => {
+        
+        return viewRange?.from || today
+    }, [viewRange]);
 
-    const startDate = viewRange?.from || today;
 
-    const endDate = viewRange?.to || startDate;
+    const endDate = useMemo(()=>viewRange?.to || startDate ,[viewRange,startDate])
 
     
-    const timerDates = 
-        getTimerDatesByRange(startDate,endDate,currentTimerDate,additionalSeconds);
+    const timerDates = useMemo(()=>{
+        return getTimerDatesByRange(startDate,endDate,currentTimerDate,additionalSeconds);
+    },[startDate,endDate,currentTimerDate,additionalSeconds])
+        
     
-    const rangeTotal = round(
-        (timerDates.reduce((acc, cur) => {
-            return acc + cur.ms;
-        }, 0)),2
-    );
-    const rangeMedium = round(rangeTotal / timerDates.length,2);
+    const rangeTotal = useMemo(()=>{
+        return round(
+            (timerDates.reduce((acc, cur) => {
+                return acc + cur.ms;
+            }, 0)),2
+        );
+    },[timerDates])
+    
+    const rangeMedium = useMemo(()=>{
+        return round(rangeTotal / timerDates.length,2);
+    },[rangeTotal,timerDates])
     
     
     return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full mt-4 ">
-                <Calendar
-                    mode="range"
-                    selected={viewRange}
-                    onSelect={setViewRange}
-                    numberOfMonths={2}
-                    className="rounded-md border lg:row-span-3 lg:col-span-2 items-center justify-center flex "
-                    {...locale}
-                />
                 <Card >
-                    <CardHeader>
+                    <CardHeader className='flex-row sm:justify-between justify-center sm:space-y-1.5 space-y-0 relative'>
+                        <div className='flex flex-col sm:space-y-1.5  items-center sm:items-start '>
                         <CardTitle>
                             {t("Range")}
                         </CardTitle>
                         <CardDescription>
                             {format(startDate,'d MMMM yyyy',locale)} - {format(endDate,'d MMMM yyyy',locale)}
                         </CardDescription>
+                        </div>
+                        <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant='outline' size='icon' className='sm:relative absolute right-6 sm:right-auto'>
+                                <CalendarCheck size={18} strokeWidth={2} />
+                                {/* {t("pick range")} */}
+                                </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            <Calendar
+                            mode="range"
+                            selected={viewRange}
+                            onSelect={setViewRange}
+                            numberOfMonths={1}
+                            {...locale}
+                        />
+                        </PopoverContent>
+                    </Popover>
                     </CardHeader>
                 </Card>
                 <Card>

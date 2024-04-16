@@ -57,7 +57,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const renderDashboard = (
     <>
-      <TypographyH1 className="truncate max-w-sm lg:max-w-3xl h-16 ">
+      <TypographyH1 className="truncate max-w-xs sm:max-w-sm lg:max-w-2xl h-16 ">
         {currentTimer?.name}
       </TypographyH1>
       <TypographyMuted>{t("Dashboard selectedTimer")}</TypographyMuted>
