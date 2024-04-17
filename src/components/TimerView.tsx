@@ -148,7 +148,7 @@ const TimerView = () => {
     const navigate = useNavigate();
     const {syncWithGoogleDrive} = useContext(GoogleContext);
    
-
+    
     return currentTimer ? (
         <div className="flex flex-col gap-4 items-start ">
             <div className="flex items-center justify-between w-full relative" >
@@ -227,12 +227,12 @@ const TimerView = () => {
                 </AlertDialog></Dialog>
                 
             </div>
-            <Tabs defaultValue="main" className="flex flex-col w-full justify-center items-center relative">
+            <Tabs defaultValue="main" className="flex flex-col w-full justify-center items-center relative" >
             <TabsList >
                 <TabsTrigger value="main">{t("timers tab1")}</TabsTrigger>
                 <TabsTrigger value="details">{t("timers tab2")}</TabsTrigger>
             </TabsList>
-            <TabsContent value="main" className='w-full'>
+            <TabsContent value="main" className='w-full' >
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 h-full mt-4 ">
                     <Card className='order-1 lg:order-none'>
                     <CardHeader>
@@ -328,7 +328,7 @@ const TimerView = () => {
                     </Card>
                 </div>
             </TabsContent>
-            <TabsContent value="details" className='w-full'>
+            <TabsContent value="details" className='w-full' >
                 <DetailsView 
                 currentTimerDate={currentTimerDate} 
                 additionalSeconds={additionalSeconds}/>
@@ -433,7 +433,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                 </CardHeader>
                 </Card>
                 
-                <Card className="lg:col-span-3 mb-8">
+                <Card className="lg:col-span-3">
                 <CardHeader>
                     <CardDescription>{t("activity on range")}</CardDescription>
                 </CardHeader>

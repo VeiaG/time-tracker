@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { MobileContext } from "@/contexts/MobileContext";
 import { Pause, Play, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const SideBar = () => {
     const {t} = useTranslation();
@@ -22,7 +23,7 @@ const SideBar = () => {
         setIsSidebarOpened,
     } = useContext(MobileContext);
     const [searchInput, setSearchInput] = useDebounce('');
-
+    const [parent,enableAnimation] = useAutoAnimate();
     const navigate = useNavigate();
     const filteredTimers = timers && Object.entries(timers).filter(([,timer])=> timer.name.toLowerCase().includes(searchInput.toLowerCase())).map(([id,timer]) => {
         const isCurrent = id===selectedTimerID;
@@ -63,8 +64,6 @@ const SideBar = () => {
         lg:opacity-100`,
         isSidebarOpened ? "translate-x-0 opacity-1" : "-translate-x-full opacity-0 ")
     }>
-        
-        
         <TypographyH3>{t("Sidebar allTimers")}</TypographyH3>
         <div className="relative mr-4">
             <Search size={16}
@@ -73,7 +72,7 @@ const SideBar = () => {
         </div>
        
         <ScrollArea className="flex-grow h-[calc(100dvh-18rem)] relative w-full " >
-            <div className="flex flex-col gap-2 pr-4 relative w-full">
+            <div className="flex flex-col gap-2 pr-4 relative w-full" ref={parent}>
                 {filteredTimers.length>0 ? <>
                     <Separator/>
                     {filteredTimers}

@@ -21,6 +21,7 @@ import {
   DialogContent,
 
 } from "@/components/ui/dialog"
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 
 
@@ -367,9 +368,8 @@ function App() {
     i18n.changeLanguage(lang);
   },[lang,i18n]);
 
-  
   return (
-      <div className="min-h-dvh h-dvh max-h-dvh relative box-border  ">
+      <div className="min-h-dvh h-dvh max-h-dvh relative box-border">
         <GoogleOAuthProvider clientId='639924263282-u23hu74l54qpr261bj77cfivcveto81u.apps.googleusercontent.com'>
         <GoogleContext.Provider value={
           {
@@ -422,7 +422,7 @@ function App() {
        
        <ThemeProvider>
        <ScrollArea className="h-full max-h-full min-h-full relative box-border">
-        <div className="flex flex-col sm:pb-0 pb-16 min-h-dvh">
+        <div className="flex flex-col sm:pb-0 pb-16 min-h-dvh" >
         <Toaster />
         <Dialog open={isZenMode} onOpenChange={setIsZenMode}>
           <DialogContent className='h-dvh max-h-dvh max-w-screen justify-center items-center sm:rounded-none rounded-none border-none'>
@@ -459,21 +459,21 @@ function App() {
             <BreadcrumbsMenu timers={timers}/>
           <div className="flex gap-4 relative ">
           <Routes>
-              <Route path="/about" element={<AboutPage />} />
+              <Route path="/about" element={<AboutPage/>} />
               <Route path="/settings" element={<Content>
                 <SettingsPage />
               </Content>} />
               <Route path="/privacy-policy" element={<PrivacyPolicy/>} />
               <Route path="/terms-of-service" element={<TermsOfService/>} />
               <Route path="/:id" element={
-                <div className='container flex gap-4 relative  h-full'>
+                <div className='container flex gap-4 relative  h-full' >
                   <Sidebar />
                   <Content>
                     <TimerView />
                   </Content> 
                 </div>}/>
               <Route path="/" element={
-                <div className='container flex gap-4 relative h-full'>
+                <div className='container flex gap-4 relative h-full' >
                   <Sidebar/>
                   <Content>
                     <Dashboard />
