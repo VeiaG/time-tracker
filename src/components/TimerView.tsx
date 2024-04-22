@@ -113,14 +113,7 @@ const TimerView = () => {
     },[id,currentId]);
 
     const additionalSeconds =  selectedTimerID !== currentId ? undefined : seconds;
-    // useEffect(() => {
-    //     if(selectedTimerID !== currentId){
-    //         setAdditionalSeconds(undefined);
-    //     }
-    //     else{
-    //         setAdditionalSeconds(seconds);
-    //     }
-    // },[currentId,selectedTimerID,seconds]);
+
 
     useEffect(()=>{
         if(currentId === selectedTimerID){
@@ -135,11 +128,16 @@ const TimerView = () => {
     const allDates = getTimerDatesAll(currentTimerDate,additionalSeconds);
     
 
-    const allDatesMedium = round(
-        (allDates.reduce((acc, cur) => {
-            return acc + cur.ms;
-        }, 0)/allDates.length),2
-    );
+    const allDatesMedium = useMemo(()=>{
+        return round(
+            (allDates.reduce((acc, cur) => {
+                if (cur.ms > 0) {
+                    return acc + cur.ms;
+                }
+                return acc;
+            }, 0) / allDates.filter(cur => cur.ms > 0).length), 2
+        ) || 0;
+    },[allDates])
     
 
     const [renameInput, setRenameInput] = useState<string>('');
@@ -371,7 +369,6 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
         return getTimerDatesByRange(startDate,endDate,currentTimerDate,additionalSeconds);
     },[startDate,endDate,currentTimerDate,additionalSeconds])
         
-    
     const rangeTotal = useMemo(()=>{
         return round(
             (timerDates.reduce((acc, cur) => {
@@ -381,7 +378,7 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     },[timerDates])
     
     const rangeMedium = useMemo(()=>{
-        return round(rangeTotal / timerDates.length,2);
+        return round(rangeTotal / timerDates.filter(cur => cur.ms > 0).length,2) || 0;
     },[rangeTotal,timerDates])
     
     
