@@ -77,17 +77,6 @@ function App() {
 
   const [userTokens, setUserTokens] = useLocalForage<UserTokens>('userTokens', null);
   const [refreshToken, setRefreshToken] = useLocalForage<string | null>('refreshToken',null);
-  const userData = useGoogleUserInfo(userTokens?.access_token || '',()=>{
-    refreshAceessToken();
-  });
-
-  const [userFiles,createFile, openFile, deleteFile, editFile,refreshFiles] = useGoogleDrive(userTokens?.access_token || '');
-  
-  const [currentSyncOption,setCurrentSyncOption] = useState<SyncOption>({type:'error',message:'No account'});
-  const [isSyncedOnPageOpen,setIsSyncedOnPageOpen] = useState(false);
-  //google auth & other methods
- 
-
   const refreshAceessToken = useCallback(async () => {
     await fetch('https://server.time-tracker.veiag.xyz/auth/google/refresh', {
       method: 'POST',
@@ -107,6 +96,16 @@ function App() {
       console.error(error);
     });
   }  ,[refreshToken,setUserTokens]);
+  const userData = useGoogleUserInfo(userTokens?.access_token || '',refreshAceessToken);
+
+  const [userFiles,createFile, openFile, deleteFile, editFile,refreshFiles] = useGoogleDrive(userTokens?.access_token || '');
+  
+  const [currentSyncOption,setCurrentSyncOption] = useState<SyncOption>({type:'error',message:'No account'});
+  const [isSyncedOnPageOpen,setIsSyncedOnPageOpen] = useState(false);
+  //google auth & other methods
+ 
+
+ 
 
  
   
@@ -121,7 +120,7 @@ function App() {
   const [currentID,setCurrentID] = useState<string | undefined>(undefined);
 
   const [selectedTimerID,setSelectedTimerID] = useLocalForage<string>('selectedTimerID','');
-  const [isZenMode,setIsZenMode] = useLocalForage<boolean>('zenmode',false,);
+  const [isZenMode,setIsZenMode] = useState(false);
 
   const [isTutorialOpened,setIsTutorialOpened] = useState(false);
 
@@ -362,7 +361,7 @@ function App() {
   },syncPeriod*60*1000);
 
   const [lang,setLang] = useLocalForage<string>('lang','en');
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   useEffect(() => {
     i18n.changeLanguage(lang);
   },[lang,i18n]);

@@ -11,7 +11,9 @@ export type UserInfo ={
 const useGoogleUserInfo = (access_token:string,
     unathorizeCallback = (message:string)=>{console.error(message)}) => {
     const [userData,setUserData] = useState<UserInfo>({} as UserInfo);
-    useEffect(  () => {
+    useEffect(() => {
+        console.log('useGoogleUserInfo',access_token)
+        
         if (!access_token) {
           setUserData({} as UserInfo);
           return
@@ -36,7 +38,7 @@ const useGoogleUserInfo = (access_token:string,
           });
         }
         fetchUserData();
-      },[access_token,unathorizeCallback]);
+      },[access_token]);
     return userData;
 }
 export default useGoogleUserInfo;
