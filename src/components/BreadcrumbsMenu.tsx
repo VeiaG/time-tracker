@@ -6,21 +6,23 @@ import {
     BreadcrumbSeparator,
   } from "@/components/ui/breadcrumb"
 import { Link,  } from "react-router-dom"
-import { AllTimers } from "@/App"
+import { AllGroups, AllTimers } from "@/App"
 type BreadcrumbsMenuProps = {
     timers:AllTimers
+    groups:AllGroups
 }
 import { useLocation } from "react-router-dom"
 import { Fragment } from "react"
 import { useTranslation } from "react-i18next"
 
-const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
+const BreadcrumbsMenu = ({timers,groups}:BreadcrumbsMenuProps) => {
     const {t} = useTranslation();
     const pages = {
         settings:t("Settings"),
         about:t("About"),
         "privacy-policy":t("privacy"),
         "terms-of-service":t("terms"),
+        "groups":t("Groups"),
 
     }
 
@@ -42,7 +44,8 @@ const BreadcrumbsMenu = ({timers}:BreadcrumbsMenuProps) => {
                 {pathnames.map((value, index) => {
                     const to = `/${pathnames.slice(0, index + 1).join("/")}`;
                     
-                    const pageName = timers[value] ? timers[value].name : pages[value] || value;
+                    const pageName = timers[value] ? timers[value].name : 
+                    groups[value] ? groups[value].name : pages[value] ||  value;
                     return (
                     <Fragment key={index}>
                         <BreadcrumbSeparator />

@@ -81,9 +81,9 @@ const EmptyDashboard = () => {
           </Card>
           
         </div>
-        <Button onClick={()=>setIsTutorialOpened(true)} variant="outline">
+        {/* <Button onClick={()=>setIsTutorialOpened(true)} variant="outline">
           {t("Tutorial")}
-        </Button>
+        </Button> */}
         <div>
           <TypographyH2 className=" mt-2 w-full text-center">FAQ</TypographyH2>
           <Accordion type="single" collapsible className="w-full">

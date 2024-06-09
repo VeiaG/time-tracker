@@ -158,6 +158,9 @@ const AvatarMenu = ()=>{
         <DropdownMenuLabel>{t("Menu")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+         <DropdownMenuItem asChild>
+            <Link to='groups'>{t("Groups")}</Link>
+          </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               
@@ -184,7 +187,7 @@ const AvatarMenu = ()=>{
             </DropdownMenuPortal>
           </DropdownMenuSub>
           
-          <DropdownMenuItem>
+          <DropdownMenuItem disabled>
             <span>{t("keyboard shortcuts")}</span>
             <DropdownMenuShortcut>CTRL+K</DropdownMenuShortcut>
           </DropdownMenuItem>

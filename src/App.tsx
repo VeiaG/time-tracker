@@ -34,6 +34,13 @@ export type Timer ={
 export type TimerDates = {
   [key:string]:number
 }
+export type AllGroups = {
+  [id:string]:Group,
+}
+export type Group = {
+  name:string,
+  timers:string[],
+}
 
 import { getStyledStringByTimerObject } from './lib/timeUtils';
 import { Button } from './components/ui/button';
@@ -60,6 +67,8 @@ import useInterval from './hooks/useInterval';
 import { useTranslation } from 'react-i18next';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
+import GroupsPage from './components/GroupsPage';
+import GroupView from './components/GroupView';
 
 export type UserTokens = {
   access_token:string,
@@ -365,6 +374,23 @@ function App() {
   useEffect(() => {
     i18n.changeLanguage(lang);
   },[lang,i18n]);
+  // groups
+  const [groups,setGroups] = useLocalForage<AllGroups>('groups',{});
+  const addGroup = (groupName:string,timers:string[] = []) => {
+    const id = crypto.randomUUID();
+    const newGroup:Group = {
+      name:groupName,
+      timers:timers ,
+    }
+    setGroups({...groups,[id]:newGroup});
+    syncWithGoogleDrive(true);
+  }
+  const deleteGroup =async (id:string) => {
+    const newGroups = {...groups};
+    delete newGroups[id];
+    setGroups(newGroups);
+    await syncWithGoogleDrive(true);
+  }
 
   return (
       <div className="min-h-dvh h-dvh max-h-dvh relative box-border">
@@ -380,7 +406,7 @@ function App() {
             userFiles,createFile, openFile, deleteFile, editFile,refreshFiles,
             currentSyncOption,
             setCurrentSyncOption,
-            syncWithGoogleDrive,
+            syncWithGoogleDrive, 
             syncPeriod,
             setSyncPeriod,
           }
@@ -413,7 +439,11 @@ function App() {
             setIsZenMode,
             setIsTutorialOpened,
             lang,
-            setLang
+            setLang,
+            groups,
+            setGroups,
+            addGroup,
+            deleteGroup,
           }
         
        }>
@@ -428,7 +458,7 @@ function App() {
               <div className='flex gap-2 items-center font-semibold lg:text-4xl'>
                 <Clock size={32} strokeWidth={3}/>
                 <span className="truncate max-w-32 lg:max-w-4xl">
-                  {currentTimer?.name || 'Щось пішло не так...' }
+                  {currentTimer?.name }
                 </span>
               </div >
               <div className='font-bold mb-4 text-6xl lg:text-9xl'>
@@ -454,7 +484,7 @@ function App() {
           <SpeedInsights/>
           <Analytics/>
           <div className=" flex-grow flex flex-col relative box-border pt-6 sm:pt-24 ">
-            <BreadcrumbsMenu timers={timers}/>
+            <BreadcrumbsMenu timers={timers} groups={groups}/>
           <div className="flex gap-4 relative ">
           <Routes>
               <Route path="/about" element={<AboutPage/>} />
@@ -470,6 +500,12 @@ function App() {
                     <TimerView />
                   </Content> 
                 </div>}/>
+              <Route path="/groups" element={
+                <GroupsPage/>
+              }/>
+              <Route path="/groups/:id" element={
+                <GroupView/>
+              }/>
               <Route path="/" element={
                 <div className='container flex gap-4 relative h-full' >
                   <Sidebar/>

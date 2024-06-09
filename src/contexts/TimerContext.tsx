@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { AllTimers ,Timer,TimerDates} from '../App';
+import { AllGroups, AllTimers ,Timer,TimerDates} from '../App';
 import { ElapsedTime } from '@/hooks/useTimer';
 
 type TimerContextType = {
@@ -24,6 +24,10 @@ type TimerContextType = {
     setIsTutorialOpened: (isTutorialOpened:boolean) => void,
     lang:string,
     setLang: (lang:string) => void,
+    groups: AllGroups,
+    setGroups: (groups:AllGroups) => void,
+    addGroup: (name:string,timers?:string[]) => void,
+    deleteGroup: (id:string) => void,
 };
 
 export const TimerContext = createContext<TimerContextType>({} as TimerContextType);

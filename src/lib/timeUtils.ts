@@ -22,7 +22,7 @@ const getNumbersBySeconds = (miliseconds:number | undefined = 0,seconds?:Elapsed
         }
     }
     if(miliseconds !== undefined && miliseconds !== null){
-        const curSeconds = Math.floor((miliseconds + addSeconds) / 1000) ;
+        const curSeconds = Math.round((miliseconds + addSeconds) / 1000) ;
         const days = Math.floor(curSeconds / 86400);
         const hours = Math.floor((curSeconds / 3600)%24);
         const minutes = Math.floor((curSeconds % 3600) / 60);
