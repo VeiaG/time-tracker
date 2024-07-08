@@ -3,7 +3,7 @@ import { TimerContext } from "@/contexts/TimerContext";
 import { Fragment, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import localforage from "localforage";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, BarChart } from 'recharts';
 import {
     Card,
     CardContent,
@@ -68,6 +68,8 @@ import { MobileContext } from "@/contexts/MobileContext";
 import { Separator } from "./ui/separator";
 import { cn } from "@/lib/utils";
 import { TypographyH1, TypographyH3, TypographyLead, TypographyMuted } from "./ui/typography";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+
 type TimerObject = {
     [key:string]:TimerDates
 }
@@ -310,7 +312,23 @@ const GroupView = () => {
             nullFunction();
         }
     },[isDialog,nullFunction]);
-    
+    const [chartConfig,setChartConfig] = useState<ChartConfig>({
+        ms:{
+            label: t("Dashboard timeElapsed"),
+            color: "#2563eb",
+        }
+    });
+    useEffect(()=>{
+        const tempConfig:ChartConfig = {}
+        groups[id]?.timers.forEach((timerID,index)=>{
+            tempConfig[timerID] = {
+                label: timers[timerID]?.name,
+                color: colors[index]
+            }
+        });
+        console.log('tempConfg change')
+        setChartConfig({...tempConfig});
+    },[groups,timers]);
   return groups[id] ? (
     <div className="w-full h-full max-h-full gap-4 pt-8 flex container grow relative pb-16 sm:pb-4 items-start">
         <div className={
@@ -444,41 +462,49 @@ const GroupView = () => {
                             <CardDescription>{t("timers activity")}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={356}>
-                            <AreaChart
-                                width={400}
-                                height={300}
-                                data={resultObj}
-                                margin={{
-                                top: 10,
-                                right: 30,
-                                left: 0,
-                                bottom: 0,
-                                }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
+                        <ChartContainer config={chartConfig} className="min-h-[128px] w-full max-h-[352px]">
+                        <BarChart 
+                            data={resultObj}
+                            accessibilityLayer
+
+                        >
+                            <CartesianGrid />
+
+                            <XAxis
                                 dataKey="name"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
                                 tickFormatter={(value) =>
                                     new Date(value).toLocaleDateString()
                                 }
                                 />
-                                <YAxis tick={false} />
-                                <Tooltip  content={(<CustomTooltip />)} />
-                                {
+                            <ChartTooltip
+                                // cursor={false}
+                                content={<ChartTooltipContent
+                                    labelFormatter={(value) =>
+                                        new Date(value).toLocaleDateString()
+                                    }
+                                    valueFormatter={(value) => getNumbersBySeconds(value)}
+                                     />}
+                            />
+                            {
                                     resultObj && Object.keys(timersObjects).map((timerID,index)=>(
-                                        <Area
+                                        <Bar
                                             key={timerID}
-                                            type="linear"
                                             dataKey={timerID}
                                             stackId={1}
-                                            stroke={colors[index]}
                                             fill={colors[index]}
                                         />
                                     ))
                                 }
-                            </AreaChart>
-                            </ResponsiveContainer>
+                            <Bar
+                            dataKey={"ms"}
+                            radius={4} 
+                            fill="var(--color-ms)"
+                            />
+                        </BarChart>
+                        </ChartContainer>
                         </CardContent>
                     </Card>
 
@@ -537,41 +563,44 @@ const GroupView = () => {
                         <CardDescription>{t("activity on range")}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={356}>
-                        <AreaChart
-                                width={400}
-                                height={300}
-                                data={timerDates}
-                                margin={{
-                                top: 10,
-                                right: 30,
-                                left: 0,
-                                bottom: 0,
-                                }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
+                    <ChartContainer config={chartConfig} className="min-h-[128px] w-full max-h-[352px]">
+                        <BarChart 
+                            data={timerDates}
+                            accessibilityLayer
+                        >
+                            <CartesianGrid />
+
+                            <XAxis
                                 dataKey="name"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
                                 tickFormatter={(value) =>
                                     new Date(value).toLocaleDateString()
                                 }
                                 />
-                                <YAxis tick={false} />
-                                <Tooltip  content={(<CustomTooltip />)} />
-                                {
-                                    timerDates  && Object.keys(timersObjects).map((timerID,index)=>(
-                                        <Area
+                            <ChartTooltip
+                                // cursor={false}
+                                content={<ChartTooltipContent
+                                    labelFormatter={(value) =>
+                                        new Date(value).toLocaleDateString()
+                                    }
+                                    valueFormatter={(value) => getNumbersBySeconds(value)}
+                                     />}
+                            />
+                            {
+                                    timerDates && Object.keys(timersObjects).map((timerID,index)=>(
+                                        <Bar
                                             key={timerID}
-                                            type="linear"
                                             dataKey={timerID}
                                             stackId={1}
-                                            stroke={colors[index]}
                                             fill={colors[index]}
                                         />
                                     ))
                                 }
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        </BarChart>
+                        </ChartContainer>
+                        
                     </CardContent>
                     </Card>
                 </div>

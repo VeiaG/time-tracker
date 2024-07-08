@@ -4,7 +4,7 @@ import localforage from 'localforage';
 import { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, BarChart } from 'recharts';
 import { TypographyH1, TypographyLead } from "./ui/typography";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -65,6 +65,8 @@ import { ElapsedTime } from '@/hooks/useTimer';
 import { CalendarCheck, Circle, CircleDot, Maximize, Pause, Pencil, Play, Settings, Trash } from 'lucide-react';
 import { GoogleContext } from '@/contexts/GoogleContext';
 import { useTranslation } from 'react-i18next';
+
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 const TimerView = () => {
     const {
@@ -146,6 +148,12 @@ const TimerView = () => {
     const navigate = useNavigate();
     const {syncWithGoogleDrive} = useContext(GoogleContext);
    
+    const chartConfig = {
+        ms:{
+          label: t("Dashboard timeElapsed"),
+          color: "#2563eb",
+        },
+      } satisfies ChartConfig;
     
     return currentTimer ? (
         <div className="flex flex-col gap-4 items-start ">
@@ -242,7 +250,6 @@ const TimerView = () => {
                     </Card>
                     <Card className='order-3 sm:col-span-2 lg:order-none lg:col-span-1'>
                     <CardHeader className='sm:items-center h-full justify-center '>
-                        {/* <CardTitle>Управління</CardTitle> */}
                         <div className="flex gap-2 items-center">
                             <Button onClick={()=>{
                                     if(currentId === selectedTimerID){
@@ -292,36 +299,41 @@ const TimerView = () => {
                         <CardDescription>{t("timers activity")}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={356}>
-                        <AreaChart
-                            width={400}
-                            height={300}
+                        <ChartContainer config={chartConfig} className="min-h-[128px] w-full max-h-[352px]">
+                        <BarChart 
                             data={allDates}
-                            margin={{
-                            top: 10,
-                            right: 30,
-                            left: 0,
-                            bottom: 0,
-                            }}
+                            accessibilityLayer
+
                         >
-                            <CartesianGrid strokeDasharray="3 3" />
+                            <CartesianGrid />
+
                             <XAxis
-                            dataKey="name"
-                            tickFormatter={(value) =>
-                                new Date(value).toLocaleDateString()
-                            }
+                                dataKey="name"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                                tickFormatter={(value) =>
+                                    new Date(value).toLocaleDateString()
+                                }
+                                />
+                            <ChartTooltip
+                                // cursor={false}
+                                content={<ChartTooltipContent
+                                    labelFormatter={(value) =>
+                                        new Date(value).toLocaleDateString()
+                                    }
+                                    formatter={
+                                        (value) => getNumbersBySeconds(value as number)
+                                    }
+                                    hideIndicator />}
                             />
-                            <YAxis tick={false} />
-                            <Tooltip  content={(<CustomTooltip />)}/>
-                            <Area
-                            animationDuration={200} 
-                            type="monotone"
-                            dataKey="ms"
-                            stroke="#8884d8"
-                            fill="#8884d8"
+                            <Bar
+                            dataKey={"ms"}
+                            radius={4} 
+                            fill="var(--color-ms)"
                             />
-                        </AreaChart>
-                        </ResponsiveContainer>
+                        </BarChart>
+                        </ChartContainer>
                     </CardContent>
                     </Card>
                 </div>
@@ -380,7 +392,12 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
     const rangeMedium = useMemo(()=>{
         return round(rangeTotal / timerDates.filter(cur => cur.ms > 0).length,2) || 0;
     },[rangeTotal,timerDates])
-    
+    const chartConfig = {
+        ms:{
+          label: t("Dashboard timeElapsed"),
+          color: "#2563eb",
+        },
+      } satisfies ChartConfig;
     
     return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full mt-4 ">
@@ -435,37 +452,41 @@ const DetailsView = ({currentTimerDate,additionalSeconds}:DetailsViewProps)=>{
                     <CardDescription>{t("activity on range")}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ResponsiveContainer width="100%" height={356}>
-                    <AreaChart
-                        width={400}
-                        height={300}
-                        data={timerDates}
-                        margin={{
-                        top: 10,
-                        right: 30,
-                        left: 0,
-                        bottom: 0,
-                        }}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis
-                        dataKey="name"
-                        tickFormatter={(value) =>
-                            new Date(value).toLocaleDateString()
-                        }
-                        />
-                        
-                        <Tooltip  content={<CustomTooltip/>}/>
-                        <Area
-                        animationDuration={200} 
-                        type="monotone"
-                        dataKey="ms"
-                        stroke="#8884d8"
-                        fill="#8884d8"
-                        />
-                        <YAxis tick={false} />
-                    </AreaChart>
-                    </ResponsiveContainer>
+                <ChartContainer config={chartConfig} className="min-h-[128px] w-full max-h-[352px]">
+                        <BarChart 
+                            data={timerDates}
+                            accessibilityLayer
+
+                        >
+                            <CartesianGrid />
+
+                            <XAxis
+                                dataKey="name"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                                tickFormatter={(value) =>
+                                    new Date(value).toLocaleDateString()
+                                }
+                                />
+                            <ChartTooltip
+                                // cursor={false}
+                                content={<ChartTooltipContent
+                                    labelFormatter={(value) =>
+                                        new Date(value).toLocaleDateString()
+                                    }
+                                    formatter={
+                                        (value) => getNumbersBySeconds(value as number)
+                                    }
+                                    hideIndicator />}
+                            />
+                            <Bar
+                            dataKey={"ms"}
+                            radius={4} 
+                            fill="var(--color-ms)"
+                            />
+                        </BarChart>
+                </ChartContainer>
                 </CardContent>
                 </Card>
             </div>

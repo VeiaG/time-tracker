@@ -1,3 +1,4 @@
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 import { getNumbersBySeconds, getTimerDatesByRange  } from "@/lib/timeUtils";
 import { useContext, useEffect, useState } from "react";
@@ -10,6 +11,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 import {
   Card,
@@ -49,6 +52,12 @@ const Dashboard = () => {
     );
     setSevenDaysObj(sevenDaysObj);
   }, [currentTimerDate, seconds]);
+  const chartConfig = {
+    ms:{
+      label: t("Dashboard timeElapsed"),
+      color: "#2563eb",
+    },
+  } satisfies ChartConfig;
 
   const sevenDaysSeconds = sevenDaysObj.reduce((acc, cur) => {
     return acc + cur.ms;
@@ -102,38 +111,39 @@ const Dashboard = () => {
             <CardDescription>{t("Dashboard activity")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={356}>
-              <AreaChart
-                width={400}
-                height={300}
+            <ChartContainer config={chartConfig} className="min-h-[128px] w-full max-h-[384px]">
+              <BarChart 
                 data={sevenDaysObj}
-                margin={{
-                  top: 10,
-                  right: 30,
-                  left: 0,
-                  bottom: 0,
-                }}
+                accessibilityLayer
               >
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid vertical={false}/>
                 <XAxis
                   dataKey="name"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
                   tickFormatter={(value) =>
                     new Date(value).toLocaleDateString()
                   }
                 />
-                
-                <Tooltip 
-                content={<CustomTooltip/>}/>
-                <Area
-                  animationDuration={200} 
-                  type="monotone"
-                  dataKey="ms"
-                  stroke="#8884d8"
-                  fill="#8884d8"
+                <ChartTooltip
+                  
+                  content={<ChartTooltipContent hideIndicator
+                    labelFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
+                    formatter={
+                        (value) => getNumbersBySeconds(value as number)
+                    }
+                     />}
                 />
-                <YAxis tick={false} />
-              </AreaChart>
-            </ResponsiveContainer>
+                <Bar
+                  dataKey={"ms"}
+                  radius={4} 
+                  fill="var(--color-ms)"
+                />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
