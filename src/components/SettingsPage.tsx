@@ -266,7 +266,7 @@ const AccountSettings = ()=>{
   
     const googleLogin = useGoogleLogin({
       onSuccess: async ({ code }) => {
-          const response = await fetch('https://server.time-tracker.veiag.xyz/auth/google', {
+          const response = await fetch('https://server.time-tracker.veiag.dev/auth/google', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'

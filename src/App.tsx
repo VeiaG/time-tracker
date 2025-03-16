@@ -87,7 +87,7 @@ function App() {
   const [userTokens, setUserTokens] = useLocalForage<UserTokens>('userTokens', null);
   const [refreshToken, setRefreshToken] = useLocalForage<string | null>('refreshToken',null);
   const refreshAceessToken = useCallback(async () => {
-    await fetch('https://server.time-tracker.veiag.xyz/auth/google/refresh', {
+    await fetch('https://server.time-tracker.veiag.dev/auth/google/refresh', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
